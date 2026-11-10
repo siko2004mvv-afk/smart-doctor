@@ -1,0 +1,2341 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Doctor -  نظام معلومات صحي ذكيي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0a0f0d;
+            --bg2: #111a16;
+            --bg3: #162019;
+            --card: #1a2b22;
+            --card-hover: #213529;
+            --border: #2a4035;
+            --border-light: #3a5a48;
+            --fg: #e8f0ec;
+            --fg-muted: #8fa89a;
+            --fg-dim: #5a7a68;
+            --accent: #0fcc8a;
+            --accent-dark: #0aa06e;
+            --accent-glow: rgba(15, 204, 138, 0.15); 
+            --accent2: #d4a853;
+            --accent2-dark: #b8913e;
+            --danger: #e74c5e;
+            --danger-bg: rgba(231, 76, 94, 0.1);
+            --warning: #f0a030;
+            --success: #2ecc71;
+            --info: #3498db;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.3);
+            --shadow-lg: 0 8px 48px rgba(0,0,0,0.4);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+        }
+         
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.7;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        a { text-decoration: none; color: inherit; }
+        button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+        input, select, textarea { font-family: inherit; outline: none; }
+        img { max-width: 100%; display: block; }
+        ul { list-style: none; }
+
+        .bg-pattern {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 600px 400px at 20% 20%, rgba(15, 204, 138, 0.04), transparent),
+                radial-gradient(ellipse 500px 500px at 80% 80%, rgba(212, 168, 83, 0.03), transparent),
+                radial-gradient(ellipse 300px 300px at 50% 50%, rgba(15, 204, 138, 0.02), transparent);
+        }
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.03;
+            background-image:
+                linear-gradient(var(--accent) 1px, transparent 1px),
+                linear-gradient(90deg, var(--accent) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* === شريط التنقل === */
+        .navbar {
+            position: fixed; top: 0; right: 0; left: 0; z-index: 1000;
+            background: rgba(10, 15, 13, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .navbar.scrolled { background: rgba(10, 15, 13, 0.95); box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+        .nav-inner {
+            max-width: 1320px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 24px; height: 72px;
+        }
+        /* .nav-logo {
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 800; font-size: 1.3rem;
+        } */
+        .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 800;
+    font-size: 1.3rem;
+    
+}
+        .nav-logo .logo-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: var(--bg);
+            box-shadow: 0 0 20px rgba(15, 204, 138, 0.3);
+        }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { display: flex; align-items: center; gap: 2px; }
+        .nav-link {
+            padding: 8px 14px; border-radius: var(--radius-sm);
+            font-size: 0.88rem; font-weight: 500; color: var(--fg-muted);
+            transition: var(--transition); position: relative;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--accent); background: var(--accent-glow); }
+        .nav-link.active::after {
+            content: ''; position: absolute; bottom: 2px; right: 50%; transform: translateX(50%);
+            width: 20px; height: 3px; border-radius: 3px; background: var(--accent);
+        }
+        .nav-cta {
+            padding: 8px 20px; border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: var(--bg); font-weight: 700; font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(15, 204, 138, 0.3); }
+        .nav-badge {
+            position: absolute; top: 2px; left: 2px;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: var(--danger); color: #fff; font-size: 0.65rem;
+            display: flex; align-items: center; justify-content: center; font-weight: 700;
+        }
+        .mobile-toggle { display: none; background: none; color: var(--fg); font-size: 1.5rem; padding: 8px; }
+        .mobile-menu {
+            display: none; position: fixed; inset: 0; z-index: 999;
+            background: rgba(10, 15, 13, 0.98); backdrop-filter: blur(20px);
+            flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+        }
+        .mobile-menu.open { display: flex; }
+        .mobile-menu .nav-link { font-size: 1.2rem; padding: 12px 32px; }
+        .mobile-close { position: absolute; top: 20px; left: 20px; background: none; color: var(--fg); font-size: 1.5rem; }
+
+        /* === الصفحات === */
+        .page { display: none; position: relative; z-index: 1; }
+        .page.active { display: block; animation: fadeUp 0.5s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* === الرئيسية === */
+        .hero {
+            min-height: 100vh; display: flex; align-items: center;
+            padding: 100px 24px 60px; position: relative; overflow: hidden;
+        }
+        .hero-bg-circle {
+            position: absolute; border-radius: 50%; border: 1px solid var(--border);
+            animation: pulse-ring 4s ease-in-out infinite;
+        }
+        .hero-bg-circle:nth-child(1) { width: 500px; height: 500px; top: -100px; left: -150px; border-color: rgba(15, 204, 138, 0.08); }
+        .hero-bg-circle:nth-child(2) { width: 350px; height: 350px; bottom: -50px; right: -100px; border-color: rgba(212, 168, 83, 0.06); animation-delay: 2s; }
+        @keyframes pulse-ring { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.5; } }
+        .hero-inner {
+            max-width: 1320px; margin: 0 auto; width: 100%;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+        }
+        .hero-content h1 { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900; line-height: 1.3; margin-bottom: 20px; }
+        .hero-content h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero-content p { font-size: 1.1rem; color: var(--fg-muted); margin-bottom: 32px; max-width: 520px; line-height: 1.9; }
+        .hero-search {
+            display: flex; gap: 8px; margin-bottom: 28px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 6px; max-width: 540px;
+        }
+        .hero-search input { flex: 1; background: none; border: none; padding: 12px 16px; color: var(--fg); font-size: 0.95rem; }
+        .hero-search input::placeholder { color: var(--fg-dim); }
+        .hero-search button {
+            padding: 12px 24px; border-radius: var(--radius-sm);
+            background: var(--accent); color: var(--bg); font-weight: 700; transition: var(--transition);
+        }
+        .hero-search button:hover { background: var(--accent-dark); }
+        .hero-stats { display: flex; gap: 32px; }
+        .hero-stat h3 { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
+        .hero-stat p { font-size: 0.82rem; color: var(--fg-dim); }
+        .hero-visual { position: relative; display: flex; justify-content: center; }
+        .hero-card-stack { position: relative; width: 380px; height: 420px; }
+        .hero-float-card {
+            position: absolute; background: var(--card);
+            border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 20px; box-shadow: var(--shadow-lg);
+            animation: float 6s ease-in-out infinite;
+        }
+        .hero-float-card:nth-child(1) { top: 0; right: 0; width: 260px; }
+        .hero-float-card:nth-child(2) { bottom: 40px; left: 0; width: 240px; animation-delay: 2s; }
+        .hero-float-card:nth-child(3) { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; animation-delay: 4s; background: linear-gradient(135deg, rgba(15,204,138,0.15), rgba(15,204,138,0.05)); border-color: rgba(15,204,138,0.2); }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+        .hero-float-card .card-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 12px; }
+        .hero-float-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+        .hero-float-card p { font-size: 0.8rem; color: var(--fg-muted); }
+
+        /* === الأقسام العامة === */
+        .features { padding: 80px 24px; max-width: 1320px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 56px; }
+        .section-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px; border-radius: 20px;
+            background: var(--accent-glow); border: 1px solid rgba(15,204,138,0.2);
+            color: var(--accent); font-size: 0.82rem; font-weight: 600; margin-bottom: 16px;
+        }
+        .section-header h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 800; margin-bottom: 12px; }
+        .section-header p { color: var(--fg-muted); max-width: 600px; margin: 0 auto; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .feature-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 32px 28px;
+            transition: var(--transition); position: relative; overflow: hidden;
+        }
+        .feature-card::before {
+            content: ''; position: absolute; top: 0; right: 0; left: 0;
+            height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2));
+            opacity: 0; transition: var(--transition);
+        }
+        .feature-card:hover { transform: translateY(-4px); border-color: var(--border-light); }
+        .feature-card:hover::before { opacity: 1; }
+        .feature-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 20px; }
+        .feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+        .feature-card p { font-size: 0.88rem; color: var(--fg-muted); line-height: 1.8; }
+
+        /* === المستشفيات === */
+        .hospitals-section, .doctors-section { padding: 80px 24px; max-width: 1320px; margin: 0 auto; }
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; justify-content: center; }
+        .filter-btn {
+            padding: 8px 20px; border-radius: 20px;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--fg-muted); font-size: 0.88rem; font-weight: 500; transition: var(--transition);
+        }
+        .filter-btn:hover, .filter-btn.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+        .hospitals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+        .hospital-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: var(--transition); }
+        .hospital-card:hover { transform: translateY(-4px); border-color: var(--border-light); box-shadow: var(--shadow); }
+        .hospital-img { height: 180px; position: relative; overflow: hidden; }
+        .hospital-img img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
+        .hospital-card:hover .hospital-img img { transform: scale(1.05); }
+        .hospital-type-badge {
+            position: absolute; top: 12px; right: 12px; padding: 4px 12px; border-radius: 6px;
+            background: rgba(10,15,13,0.8); backdrop-filter: blur(8px);
+            color: var(--accent); font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(15,204,138,0.2);
+        }
+        .hospital-gov-badge {
+            position: absolute; top: 12px; left: 12px; padding: 4px 12px; border-radius: 6px;
+            background: rgba(212,168,83,0.15); backdrop-filter: blur(8px);
+            color: var(--accent2); font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(212,168,83,0.3);
+        }
+        .hospital-body { padding: 20px; }
+        .hospital-body h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+        .hospital-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+        .hospital-meta span { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: var(--fg-muted); }
+        .hospital-meta span i { color: var(--accent); font-size: 0.75rem; }
+        .hospital-rating { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+        .stars { color: var(--accent2); font-size: 0.85rem; }
+        .rating-num { font-size: 0.9rem; font-weight: 700; color: var(--accent2); }
+        .rating-count { font-size: 0.78rem; color: var(--fg-dim); }
+        .hospital-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .hospital-tag { padding: 3px 10px; border-radius: 4px; background: var(--bg3); color: var(--fg-dim); font-size: 0.73rem; }
+        .hospital-actions { display: flex; gap: 8px; }
+        .btn-outline {
+            flex: 1; padding: 10px; border-radius: var(--radius-sm);
+            border: 1px solid var(--border); background: none;
+            color: var(--fg-muted); font-size: 0.85rem; font-weight: 600; transition: var(--transition);
+        }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-primary {
+            flex: 1; padding: 10px; border-radius: var(--radius-sm);
+            background: var(--accent); color: var(--bg);
+            font-size: 0.85rem; font-weight: 700; transition: var(--transition);
+        }
+        .btn-primary:hover { background: var(--accent-dark); transform: translateY(-1px); }
+
+        /* === الأطباء === */
+        .doctors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .doctor-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; transition: var(--transition); display: flex; gap: 16px; }
+        .doctor-card:hover { transform: translateY(-4px); border-color: var(--border-light); box-shadow: var(--shadow); }
+        .doctor-avatar {
+            width: 72px; height: 72px; border-radius: 16px; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--bg3), var(--card));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; color: var(--accent); border: 2px solid var(--border);
+        }
+        .doctor-info { flex: 1; }
+        .doctor-info h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .doctor-specialty { font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
+        .doctor-hospital { font-size: 0.78rem; color: var(--fg-dim); margin-bottom: 10px; }
+        .doctor-details { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+        .doctor-detail { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--fg-muted); }
+        .doctor-detail i { font-size: 0.7rem; color: var(--accent); }
+        .doctor-bottom { display: flex; align-items: center; justify-content: space-between; }
+        .doctor-fee { font-size: 0.85rem; font-weight: 700; color: var(--accent2); }
+        .doctor-fee small { font-size: 0.72rem; color: var(--fg-dim); font-weight: 400; }
+        .btn-book-sm {
+            padding: 6px 16px; border-radius: var(--radius-sm);
+            background: var(--accent); color: var(--bg);
+            font-size: 0.78rem; font-weight: 700; transition: var(--transition);
+        }
+        .btn-book-sm:hover { background: var(--accent-dark); }
+
+        /* === الحجز === */
+        .booking-page { padding: 100px 24px 60px; max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+        .booking-steps { display: flex; justify-content: center; gap: 8px; margin-bottom: 48px; flex-wrap: wrap; }
+        .step {
+            display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius);
+            background: var(--card); border: 1px solid var(--border);
+            font-size: 0.85rem; color: var(--fg-dim); transition: var(--transition);
+        }
+        .step.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+        .step.done { border-color: var(--success); color: var(--success); background: rgba(46,204,113,0.1); }
+        .step-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.78rem; font-weight: 700;
+            background: var(--bg3); border: 1px solid var(--border);
+        }
+        .step.active .step-num { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+        .step.done .step-num { background: var(--success); color: #fff; border-color: var(--success); }
+        .step-line { width: 40px; height: 2px; background: var(--border); align-self: center; }
+        .booking-form-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 36px; margin-bottom: 24px;
+        } */ 
+         /* =============================================
+
+/* =============================================
+   محتوى الحجز (منفصل تماماً عن الخطوات)
+   ============================================= */
+#bookingContent {
+    margin-top: 4px;
+}
+        .booking-form-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+        .booking-form-card h3 i { color: var(--accent); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-label { font-size: 0.85rem; font-weight: 600; color: var(--fg-muted); }
+        .form-input, .form-select {
+            padding: 12px 16px; border-radius: var(--radius-sm);
+            background: var(--bg2); border: 1px solid var(--border);
+            color: var(--fg); font-size: 0.9rem; transition: var(--transition);
+        }
+        .form-input:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .form-select option { background: var(--bg2); color: var(--fg); }
+        .time-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+        .time-slot {
+            padding: 10px; border-radius: var(--radius-sm);
+            border: 1px solid var(--border); background: var(--bg2);
+            color: var(--fg-muted); font-size: 0.85rem; font-weight: 600;
+            text-align: center; transition: var(--transition);
+        }
+        .time-slot:hover { border-color: var(--accent); color: var(--accent); }
+        .time-slot.selected { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+        .time-slot.disabled { opacity: 0.3; pointer-events: none; }
+        .booking-nav { display: flex; justify-content: space-between; gap: 12px; }
+        .btn-back {
+            padding: 12px 28px; border-radius: var(--radius-sm);
+            border: 1px solid var(--border); background: none;
+            color: var(--fg-muted); font-size: 0.9rem; font-weight: 600; transition: var(--transition);
+        }
+        .btn-back:hover { border-color: var(--fg-muted); color: var(--fg); }
+        .btn-next {
+            padding: 12px 32px; border-radius: var(--radius-sm);
+            background: var(--accent); color: var(--bg);
+            font-size: 0.9rem; font-weight: 700; transition: var(--transition);
+        }
+        .btn-next:hover { background: var(--accent-dark); transform: translateY(-1px); }
+        .btn-next:disabled { opacity: 0.4; pointer-events: none; }
+
+        /* === مواعيدي === */
+        .appointments-page { padding: 100px 24px 60px; max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+        .empty-state { text-align: center; padding: 80px 20px; }
+        .empty-icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: var(--card); display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: var(--fg-dim); margin: 0 auto 20px; border: 1px solid var(--border);
+        }
+        .empty-state h3 { font-size: 1.2rem; margin-bottom: 8px; }
+        .empty-state p { color: var(--fg-dim); margin-bottom: 24px; }
+        .appointment-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px;
+            display: flex; gap: 20px; align-items: center; transition: var(--transition);
+        }
+        .appointment-card:hover { border-color: var(--border-light); }
+        .appt-date-box {
+            width: 72px; height: 80px; border-radius: 14px; flex-shrink: 0;
+            background: var(--accent-glow); border: 1px solid rgba(15,204,138,0.2);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .appt-date-box .day { font-size: 1.5rem; font-weight: 900; color: var(--accent); line-height: 1; }
+        .appt-date-box .month { font-size: 0.72rem; color: var(--accent); font-weight: 600; }
+        .appt-info { flex: 1; }
+        .appt-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .appt-info p { font-size: 0.82rem; color: var(--fg-muted); }
+        .appt-info p i { margin-left: 4px; color: var(--accent); font-size: 0.75rem; }
+        .appt-status { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+        .appt-status.confirmed { background: rgba(46,204,113,0.1); color: var(--success); }
+        .appt-status.pending { background: rgba(240,160,48,0.1); color: var(--warning); }
+        .appt-cancel {
+            padding: 8px 16px; border-radius: var(--radius-sm);
+            background: var(--danger-bg); border: 1px solid rgba(231,76,94,0.2);
+            color: var(--danger); font-size: 0.8rem; font-weight: 600; transition: var(--transition);
+        }
+        .appt-cancel:hover { background: rgba(231,76,94,0.2); }
+
+        /* === الطوارئ === */
+        .emergency-page { padding: 100px 24px 60px; max-width: 1000px; margin: 0 auto; position: relative; z-index: 1; }
+        .emergency-hero {
+            background: linear-gradient(135deg, rgba(231,76,94,0.1), rgba(231,76,94,0.03));
+            border: 1px solid rgba(231,76,94,0.2);
+            border-radius: var(--radius-lg); padding: 40px; text-align: center; margin-bottom: 32px;
+        }
+        .emergency-pulse {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(231,76,94,0.15); border: 2px solid rgba(231,76,94,0.3);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; position: relative;
+        }
+        .emergency-pulse::before {
+            content: ''; position: absolute; inset: -8px; border-radius: 50%;
+            border: 2px solid rgba(231,76,94,0.15); animation: em-pulse 2s ease-in-out infinite;
+        }
+        @keyframes em-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0; } }
+        .emergency-pulse i { font-size: 2rem; color: var(--danger); }
+        .emergency-hero h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
+        .emergency-hero p { color: var(--fg-muted); }
+        .blood-types-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 32px; }
+        .blood-type-btn {
+            padding: 16px; border-radius: var(--radius);
+            background: var(--card); border: 2px solid var(--border);
+            text-align: center; font-size: 1.1rem; font-weight: 800;
+            color: var(--fg-muted); transition: var(--transition);
+        }
+        .blood-type-btn:hover { border-color: var(--danger); color: var(--danger); }
+        .blood-type-btn.selected { background: rgba(231,76,94,0.1); border-color: var(--danger); color: var(--danger); box-shadow: 0 0 20px rgba(231,76,94,0.15); }
+        .blood-type-btn small { display: block; font-size: 0.68rem; font-weight: 400; margin-top: 4px; }
+        .emergency-contacts { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .emergency-contact-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; align-items: center; gap: 16px; }
+        .ec-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .ec-info h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; }
+        .ec-info p { font-size: 0.82rem; color: var(--fg-muted); direction: ltr; text-align: right; }
+
+        /* === About Us === */
+        .about-page { padding: 100px 24px 60px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+        .about-hero {
+            text-align: center;
+            padding: 50px 30px;
+            background: linear-gradient(135deg, rgba(15,204,138,0.08), rgba(212,168,83,0.04));
+            border: 1px solid rgba(15,204,138,0.15);
+            border-radius: var(--radius-lg);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .about-hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(15,204,138,0.06), transparent 60%);
+        }
+        .about-hero .uni-name { font-size: 0.9rem; color: var(--fg-muted); margin-bottom: 6px; }
+        .about-hero .fac-name { font-size: 1.05rem; color: var(--fg); font-weight: 600; margin-bottom: 16px; }
+        .about-hero .proj-name { font-size: 1.8rem; font-weight: 900; color: var(--accent); line-height: 1.4; margin-bottom: 8px; }
+        .about-hero .proj-name-en { font-size: 0.9rem; color: var(--fg-dim); direction: ltr; }
+        .about-hero .year-badge {
+            display: inline-block; margin-top: 16px; padding: 6px 20px;
+            background: var(--accent); color: var(--bg); border-radius: 20px;
+            font-size: 0.85rem; font-weight: 700;
+        }
+        .about-section { margin-bottom: 36px; }
+        .about-section-title {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 1.15rem; font-weight: 800; color: var(--accent);
+            margin-bottom: 20px; padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+        .about-section-title i { font-size: 1rem; }
+        .supervisors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 36px; }
+        .supervisor-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px;
+            display: flex; align-items: center; gap: 18px;
+            transition: var(--transition);
+        }
+        .supervisor-card:hover { border-color: var(--border-light); transform: translateY(-2px); box-shadow: var(--shadow); }
+        .supervisor-icon {
+            width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent-glow), rgba(15,204,138,0.05));
+            border: 2px solid rgba(15,204,138,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; color: var(--accent);
+        }
+        .supervisor-info h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 2px; }
+        .supervisor-info p { font-size: 0.85rem; color: var(--fg-muted); }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+        }
+        .team-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 18px;
+            display: flex; align-items: center; gap: 14px;
+            transition: var(--transition);
+        }
+        .team-card:hover { border-color: var(--border-light); transform: translateY(-2px); box-shadow: var(--shadow); }
+        .team-avatar {
+            width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-weight: 800; color: var(--bg);
+        }
+        .team-card h4 { font-size: 0.88rem; font-weight: 700; line-height: 1.5; }
+        .about-desc {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 28px;
+            font-size: 0.95rem; color: var(--fg-muted); line-height: 2;
+        }
+        .about-desc strong { color: var(--fg); }
+        .about-stats {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px; margin-bottom: 36px;
+        }
+        .about-stat-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 20px; text-align: center;
+            transition: var(--transition);
+        }
+        .about-stat-card:hover { border-color: var(--border-light); }
+        .about-stat-card .stat-icon { font-size: 1.6rem; color: var(--accent); margin-bottom: 8px; }
+        .about-stat-card .stat-num { font-size: 1.8rem; font-weight: 900; color: var(--fg); }
+        .about-stat-card .stat-label { font-size: 0.8rem; color: var(--fg-dim); margin-top: 2px; }
+
+        /* === الإشعارات === */
+        .toast-container { position: fixed; top: 84px; left: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+        .toast {
+            padding: 14px 20px; border-radius: var(--radius);
+            background: var(--card); border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px;
+            min-width: 300px; max-width: 420px; animation: toast-in 0.4s ease;
+        }
+        .toast.removing { animation: toast-out 0.3s ease forwards; }
+        @keyframes toast-in { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toast-out { to { opacity: 0; transform: translateX(-40px); } }
+        .toast-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .toast-msg { font-size: 0.88rem; flex: 1; }
+        .toast-close { background: none; color: var(--fg-dim); font-size: 0.9rem; padding: 4px; transition: var(--transition); }
+        .toast-close:hover { color: var(--fg); }
+        .toast.success { border-color: rgba(46,204,113,0.3); }
+        .toast.success .toast-icon { color: var(--success); }
+        .toast.error { border-color: rgba(231,76,94,0.3); }
+        .toast.error .toast-icon { color: var(--danger); }
+        .toast.warning { border-color: rgba(240,160,48,0.3); }
+        .toast.warning .toast-icon { color: var(--warning); }
+        .toast.info { border-color: rgba(52,152,219,0.3); }
+        .toast.info .toast-icon { color: var(--info); }
+
+        /* === النافذة المنبثقة === */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 3000;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center; padding: 24px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; max-width: 480px; width: 100%; animation: fadeUp 0.3s ease; }
+        .modal h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .modal p { color: var(--fg-muted); font-size: 0.9rem; margin-bottom: 24px; line-height: 1.8; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-btn { padding: 10px 24px; border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 600; transition: var(--transition); }
+        .modal-btn.cancel { background: var(--bg3); border: 1px solid var(--border); color: var(--fg-muted); }
+        .modal-btn.cancel:hover { border-color: var(--fg-dim); color: var(--fg); }
+        .modal-btn.confirm { background: var(--danger); color: #fff; }
+        .modal-btn.confirm:hover { opacity: 0.9; }
+        .modal-btn.confirm-green { background: var(--accent); color: var(--bg); }
+        .modal-btn.confirm-green:hover { background: var(--accent-dark); }
+
+        /* === تأكيد الحجز === */
+        .confirm-card { text-align: center; padding: 40px 20px; }
+        .confirm-icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(46,204,113,0.1); border: 2px solid rgba(46,204,113,0.3);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 2rem; color: var(--success);
+            animation: confirm-pop 0.5s ease;
+        }
+        @keyframes confirm-pop { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .confirm-card h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; color: var(--success); }
+        .confirm-card .confirm-details { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin: 24px 0; text-align: right; }
+        .confirm-detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .confirm-detail-row:last-child { border-bottom: none; }
+        .confirm-detail-row .label { color: var(--fg-muted); }
+        .confirm-detail-row .value { font-weight: 700; }
+
+        /* === تذييل === */
+        .site-footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 48px 24px 24px; margin-top: 40px; }
+        .footer-inner { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+        .footer-brand p { color: var(--fg-dim); font-size: 0.85rem; margin-top: 12px; line-height: 1.8; }
+        .footer-col h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 16px; }
+        .footer-col a { display: block; padding: 4px 0; font-size: 0.85rem; color: var(--fg-dim); transition: var(--transition); }
+        .footer-col a:hover { color: var(--accent); }
+        .footer-bottom { max-width: 1320px; margin: 32px auto 0; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--fg-dim); }
+        .footer-social { display: flex; gap: 12px; }
+        .footer-social a { width: 36px; height: 36px; border-radius: 8px; background: var(--bg3); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--fg-dim); font-size: 0.9rem; transition: var(--transition); }
+        .footer-social a:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* === استجابة === */
+        @media (max-width: 1024px) {
+            .hero-inner { grid-template-columns: 1fr; text-align: center; }
+            .hero-content p { margin: 0 auto 32px; }
+            .hero-search { margin: 0 auto 28px; }
+            .hero-stats { justify-content: center; }
+            .hero-visual { display: none; }
+            .footer-inner { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-toggle { display: block; }
+            .hospitals-grid, .doctors-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .step-line { display: none; }
+            .footer-inner { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+            .emergency-contacts { grid-template-columns: 1fr; }
+            .blood-types-grid { grid-template-columns: repeat(4, 1fr); }
+            .appointment-card { flex-direction: column; align-items: stretch; }
+            .team-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+            .supervisors-grid { grid-template-columns: 1fr; }
+            .about-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .hero-stats { flex-direction: column; gap: 16px; }
+            .time-slots { grid-template-columns: repeat(3, 1fr); }
+            .blood-types-grid { grid-template-columns: repeat(3, 1fr); }
+            .team-grid { grid-template-columns: 1fr; }
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+/* ]]]]]]]]]]]]]]]]]]]]]]]]]]  */
+                       /* =============================================
+   إعدادات خطوات الحجز الست (6 خطوات)
+   ============================================= */
+/* .booking-steps {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 36px;
+    position: relative;
+    padding: 0 8px;
+}
+.booking-steps::before {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 6%;
+    right: 6%;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+    border-radius: 1px;
+}
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    max-width: 100px;
+}
+.step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg2);
+    border: 2px solid var(--border);
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--fg-dim);
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.step-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--fg-dim);
+    text-align: center;
+    transition: all 0.3s ease;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+.step.active .step-circle {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 4px var(--accent-glow);
+    transform: scale(1.1);
+}
+.step.active .step-label {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.66rem;
+}
+.step.done .step-circle {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+.step.done .step-label {
+    color: var(--accent);
+} */
+ /* =============================================
+   خطوات الحجز — مضغوطة ومدمجة
+   ============================================= */
+.booking-steps {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--fg-dim);
+    transition: all 0.2s ease;
+    font-family: 'Tajawal', sans-serif;
+}
+.step-txt {
+    font-size: 0.58rem;
+    font-weight: 600;
+    color: var(--fg-dim);
+    text-align: center;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+}
+.step.active .step-num {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+.step.active .step-txt {
+    color: var(--accent);
+}
+.step.done .step-num {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+.step.done .step-txt {
+    color: var(--accent);
+}
+#bookingContent {
+    margin-top: 0;
+}
+@media (max-width: 480px) {
+    .step-num { width: 24px; height: 24px; font-size: 0.58rem; }
+    .step-txt { font-size: 0.5rem; }
+    .booking-steps { gap: 3px; }
+}
+
+/* =============================================
+   كروت اختيار المحافظة
+   ============================================= */
+.gov-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+.gov-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+.gov-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(15,204,138,0.04), transparent);
+    transition: width 0.3s ease;
+    pointer-events: none;
+}
+.gov-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+.gov-card:hover::before {
+    width: 100%;
+}
+.gov-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow), var(--shadow);
+    background: var(--bg2);
+}
+.gov-card.selected::before {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(15,204,138,0.06), transparent);
+}
+.gov-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(15,204,138,0.08);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    transition: all 0.25s ease;
+    position: relative;
+    z-index: 1;
+}
+.gov-card:hover .gov-icon {
+    background: rgba(15,204,138,0.14);
+    transform: scale(1.05);
+}
+.gov-card.selected .gov-icon {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(15,204,138,0.35);
+}
+.gov-info {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+}
+.gov-info h4 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--fg);
+    margin-bottom: 2px;
+    line-height: 1.4;
+}
+.gov-card.selected .gov-info h4 {
+    color: var(--accent);
+}
+.gov-info small {
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.gov-info small::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--fg-dim);
+    opacity: 0.5;
+}
+.gov-card.selected .gov-info small::before {
+    background: var(--accent);
+    opacity: 0.7;
+}
+
+/* =============================================
+   كروت اختيار المركز
+   ============================================= */
+.center-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+}
+.center-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+.center-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,204,138,0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+.center-card:hover {
+    border-color: rgba(15,204,138,0.5);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+.center-card:hover::after {
+    opacity: 1;
+}
+.center-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow), var(--shadow);
+}
+.center-card.selected::after {
+    opacity: 1;
+    background: linear-gradient(135deg, rgba(15,204,138,0.08), transparent);
+}
+.ctr-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(15,204,138,0.08);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    transition: all 0.25s ease;
+    position: relative;
+    z-index: 1;
+}
+.center-card:hover .ctr-icon {
+    background: rgba(15,204,138,0.15);
+    transform: scale(1.08);
+}
+.center-card.selected .ctr-icon {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(15,204,138,0.3);
+}
+.ctr-info {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+}
+.ctr-info h4 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--fg);
+    margin-bottom: 1px;
+    line-height: 1.4;
+}
+.center-card.selected .ctr-info h4 {
+    color: var(--accent);
+}
+.ctr-info small {
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    font-weight: 500;
+}
+
+/* =============================================
+   كروت اختيار المستشفى (داخل الحجز)
+   ============================================= */
+.hospital-select-card {
+    padding: 16px 18px;
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+.hospital-select-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,204,138,0.06), transparent);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+.hospital-select-card:hover {
+    border-color: rgba(15,204,138,0.5);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+.hospital-select-card:hover::after {
+    opacity: 1;
+}
+.hospital-select-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow), var(--shadow);
+}
+.hospital-select-card.selected::after {
+    opacity: 1;
+    background: linear-gradient(135deg, rgba(15,204,138,0.1), transparent);
+}
+.hospital-select-card .hsc-name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--fg);
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 1;
+}
+.hospital-select-card.selected .hsc-name {
+    color: var(--accent);
+}
+.hospital-select-card .hsc-meta {
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    position: relative;
+    z-index: 1;
+}
+.hospital-select-card .hsc-check {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    z-index: 2;
+}
+.hospital-select-card.selected .hsc-check {
+    display: flex;
+}
+
+/* =============================================
+   ملخص الاختيار (داخل خطوة الموعد)
+   ============================================= */
+.summary-box {
+    flex: 1;
+    min-width: 200px;
+    padding: 16px 18px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+.summary-box:hover {
+    border-color: rgba(15,204,138,0.3);
+}
+.summary-label {
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    margin-bottom: 5px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.summary-label i {
+    font-size: 0.7rem;
+    color: var(--accent);
+    opacity: 0.7;
+}
+.summary-value {
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--fg);
+    line-height: 1.5;
+}
+.summary-sub {
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* =============================================
+   عنوان القسم مع العدد
+   ============================================= */
+.section-count-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--accent);
+}
+.section-count-header .count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 50px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+/* =============================================
+   حالة فارغة (لا توجد مراكز/مستشفيات)
+   ============================================= */
+.empty-step {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--fg-dim);
+}
+.empty-step-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 1.5rem;
+    color: var(--fg-dim);
+}
+.empty-step h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--fg-muted);
+    margin-bottom: 4px;
+}
+.empty-step p {
+    font-size: 0.85rem;
+}
+
+/* =============================================
+   التجاوب مع الشاشات الصغيرة
+   ============================================= */
+@media (max-width: 768px) {
+    .booking-steps::before {
+        left: 3%;
+        right: 3%;
+    }
+    .step {
+        max-width: 72px;
+    }
+    .step-circle {
+        width: 30px;
+        height: 30px;
+        font-size: 0.65rem;
+    }
+    .step-label {
+        font-size: 0.52rem;
+    }
+    .step.active .step-label {
+        font-size: 0.55rem;
+    }
+    .gov-grid {
+        grid-template-columns: 1fr;
+    }
+    .center-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    .gov-card {
+        padding: 14px 16px;
+    }
+    .gov-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 1rem;
+    }
+    .gov-info h4 {
+        font-size: 0.88rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .step {
+        max-width: 56px;
+    }
+    .step-circle {
+        width: 26px;
+        height: 26px;
+        font-size: 0.58rem;
+    }
+    .step-label {
+        font-size: 0.48rem;
+    }
+    .step.active .step-label {
+        font-size: 0.5rem;
+    }
+    .center-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .center-card {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    .ctr-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 0.78rem;
+        border-radius: 8px;
+    }
+    .ctr-info h4 {
+        font-size: 0.8rem;
+    }
+    .ctr-info small {
+        font-size: 0.65rem;
+    }
+    .gov-card {
+        padding: 12px 14px;
+        gap: 10px;
+    }
+    .gov-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 0.9rem;
+        border-radius: 10px;
+    }
+    .gov-info h4 {
+        font-size: 0.82rem;
+    }
+    .gov-info small {
+        font-size: 0.7rem;
+    }
+}
+
+/* =============================================
+   حركة دخول سلسة للكروت
+   ============================================= */
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.gov-card,
+.center-card,
+.hospital-select-card {
+    animation: cardFadeIn 0.35s ease both;
+}
+.gov-grid .gov-card:nth-child(1) { animation-delay: 0.02s; }
+.gov-grid .gov-card:nth-child(2) { animation-delay: 0.04s; }
+.gov-grid .gov-card:nth-child(3) { animation-delay: 0.06s; }
+.gov-grid .gov-card:nth-child(4) { animation-delay: 0.08s; }
+.gov-grid .gov-card:nth-child(5) { animation-delay: 0.10s; }
+.gov-grid .gov-card:nth-child(6) { animation-delay: 0.12s; }
+.gov-grid .gov-card:nth-child(7) { animation-delay: 0.14s; }
+.gov-grid .gov-card:nth-child(8) { animation-delay: 0.16s; }
+.center-grid .center-card:nth-child(n) {
+    animation-delay: calc(n * 0.025s);
+}
+
+/* =============================================
+   قسم حالات المرضى
+   ============================================= */
+.cases-page { padding: 100px 24px 60px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+.cases-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+.cases-search { flex: 1; max-width: 400px; display: flex; gap: 8px; }
+.cases-search input { flex: 1; padding: 12px 16px; border-radius: var(--radius-sm); background: var(--card); border: 1px solid var(--border); color: var(--fg); font-size: 0.9rem; }
+.cases-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.btn-add-case { padding: 12px 24px; border-radius: var(--radius-sm); background: var(--accent); color: var(--bg); font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: var(--transition); }
+.btn-add-case:hover { background: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(15,204,138,0.3); }
+.cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+.case-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; transition: var(--transition); position: relative; overflow: hidden; }
+.case-card:hover { border-color: var(--border-light); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.case-status-bar { position: absolute; top: 0; right: 0; left: 0; height: 4px; }
+.case-status-bar.stable { background: var(--success); }
+.case-status-bar.critical { background: var(--danger); }
+.case-status-bar.observation { background: var(--warning); }
+.case-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.case-info h3 { font-size: 1.1rem; font-weight: 800; color: var(--fg); margin-bottom: 4px; }
+.case-info p { font-size: 0.85rem; color: var(--fg-dim); }
+.case-status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+.case-status-badge.stable { background: rgba(46,204,113,0.1); color: var(--success); border: 1px solid rgba(46,204,113,0.2); }
+.case-status-badge.critical { background: rgba(231,76,94,0.1); color: var(--danger); border: 1px solid rgba(231,76,94,0.2); }
+.case-status-badge.observation { background: rgba(240,160,48,0.1); color: var(--warning); border: 1px solid rgba(240,160,48,0.2); }
+.case-details { margin-bottom: 16px; background: var(--bg2); border-radius: var(--radius-sm); padding: 12px; border: 1px solid var(--border); }
+.case-detail-item { margin-bottom: 8px; }
+.case-detail-item:last-child { margin-bottom: 0; }
+.case-detail-label { font-size: 0.75rem; color: var(--fg-muted); font-weight: 600; margin-bottom: 2px; }
+.case-detail-value { font-size: 0.9rem; color: var(--fg); font-weight: 500; }
+.case-actions { display: flex; gap: 10px; border-top: 1px solid var(--border); padding-top: 16px; }
+.btn-case-action { flex: 1; padding: 8px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; transition: var(--transition); background: var(--bg3); color: var(--fg-muted); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-case-action.edit:hover { background: var(--accent-glow); color: var(--accent); border-color: rgba(15,204,138,0.3); }
+.btn-case-action.delete:hover { background: var(--danger-bg); color: var(--danger); border-color: rgba(231,76,94,0.3); }
+
+/* Modal Case Form */
+.modal.case-modal { max-width: 600px; }
+    </style>
+</head>
+<body>
+
+<div class="bg-pattern"></div>
+<div class="bg-grid"></div>
+
+<!-- شريط التنقل -->
+<nav class="navbar" id="navbar">
+    <div class="nav-inner">
+        <a href="#" class="nav-logo" onclick="navigateTo('home')">
+            <div class="logo-icon"><i class="fas fa-heartbeat"></i></div>
+            <!-- <span>Smart</span> Doctor -->
+             Doctor<span>Smart</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link active" data-page="home" onclick="navigateTo('home')">الرئيسية</a>
+            <a class="nav-link" data-page="hospitals" onclick="navigateTo('hospitals')">المستشفيات</a>
+            <a class="nav-link" data-page="doctors" onclick="navigateTo('doctors')">الأطباء</a>
+            <a class="nav-link" data-page="booking" onclick="navigateTo('booking')">حجز موعد</a>
+            <a class="nav-link" data-page="appointments" onclick="navigateTo('appointments')" style="position:relative;">
+                مواعيدي
+                <span class="nav-badge" id="apptBadge" style="display:none;">0</span>
+            </a>
+            <a class="nav-link" data-page="emergency" onclick="navigateTo('emergency')">الطوارئ</a>
+            <a class="nav-link" data-page="records" onclick="navigateTo('records')">السجل الطبي</a>
+            <a class="nav-link" data-page="about" onclick="navigateTo('about')">من نحن</a>
+        </div>
+        <button class="nav-cta" onclick="navigateTo('booking')">احجز الان</button>
+        <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="القائمة"><i class="fas fa-bars"></i></button>
+    </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-close" onclick="toggleMobileMenu()" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+    <a class="nav-link" onclick="navigateTo('home'); toggleMobileMenu();">الرئيسية</a>
+    <a class="nav-link" onclick="navigateTo('hospitals'); toggleMobileMenu();">المستشفيات</a>
+    <a class="nav-link" onclick="navigateTo('doctors'); toggleMobileMenu();">الأطباء</a>
+    <a class="nav-link" onclick="navigateTo('booking'); toggleMobileMenu();">حجز موعد</a>
+    <a class="nav-link" onclick="navigateTo('appointments'); toggleMobileMenu();">مواعيدي</a>
+    <a class="nav-link" onclick="navigateTo('emergency'); toggleMobileMenu();">الطوارئ</a>
+    <a class="nav-link" onclick="navigateTo('records'); toggleMobileMenu();">السجل الطبي</a>
+    <a class="nav-link" onclick="navigateTo('about'); toggleMobileMenu();">من نحن</a>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div>
+
+<!-- ============ الرئيسية ============ -->
+<section class="page active" id="page-home">
+    <div class="hero">
+        <div class="hero-bg-circle"></div>
+        <div class="hero-bg-circle"></div>
+        <div class="hero-inner">
+            <div class="hero-content">
+                <h1>نظام معلومات صحي ذكي لتحسين جودة <span class="highlight">الرعاية الصحية</span></h1>
+                <p>منصة رقمية متكاملة لحجز المواعيد الطبية بالمستشفيات الحكومية، مع توفير تقييمات حقيقية وتوجيه ذكي للمريض بناءً على تخصصه واحتياجه.</p>
+                <div class="hero-search">
+                    <input type="text" id="heroSearch" placeholder="ابحث عن مستشفى أو طبيب أو تخصص..." oninput="handleHeroSearch(this.value)">
+                    <button onclick="handleHeroSearchClick()"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat"><h3 id="statHospitals">0</h3><p>مستشفى حكومي</p></div>
+                    <div class="hero-stat"><h3 id="statDoctors">0</h3><p>طبيب متخصص</p></div>
+                    <div class="hero-stat"><h3 id="statSpecialties">0</h3><p>تخصص طبي</p></div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-card-stack">
+                    <div class="hero-float-card">
+                        <div class="card-icon" style="background: rgba(15,204,138,0.1); color: var(--accent);"><i class="fas fa-hospital"></i></div>
+                        <h4>القصر العيني</h4><p>تقييم 4.8 - القاهرة</p>
+                    </div>
+                    <div class="hero-float-card">
+                        <div class="card-icon" style="background: rgba(212,168,83,0.1); color: var(--accent2);"><i class="fas fa-user-md"></i></div>
+                        <h4>د. أحمد مرسي</h4><p>قلب وأوعية دموية</p>
+                    </div>
+                    <div class="hero-float-card">
+                        <div class="card-icon" style="background: rgba(231,76,94,0.1); color: var(--danger);"><i class="fas fa-tint"></i></div>
+                        <h4>فصيلة الدم</h4><p>وصول فوري في الطوارئ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="features">
+        <div class="section-header">
+            <div class="section-badge"><i class="fas fa-sparkles"></i> لماذا Smart Doctor</div>
+            <h2>رعاية صحية ذكية في متناول يدك</h2>
+            <p>نظام متكامل يجمع بين التكنولوجيا الحديثة واحتياجات المريض الفعلية في المستشفيات الحكومية</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon" style="background: rgba(15,204,138,0.1); color: var(--accent);"><i class="fas fa-calendar-check"></i></div><h3>حجز ذكي للمواعيد</h3><p>احجز موعدك بضغطة واحدة مع اختيار المستشفى والطبيب والوقت المناسب.</p></div>
+            <div class="feature-card"><div class="feature-icon" style="background: rgba(212,168,83,0.1); color: var(--accent2);"><i class="fas fa-star"></i></div><h3>تقييمات حقيقية وموثوقة</h3><p>تقييمات مرضى حقيقية مع فرز التعليقات المضللة لضمان مصداقية المعلومات.</p></div>
+            <div class="feature-card"><div class="feature-icon" style="background: rgba(231,76,94,0.1); color: var(--danger);"><i class="fas fa-tint"></i></div><h3>فصيلة الدم في الطوارئ</h3><p>وصول فوري لفصيلة الدم على شاشة القفل في حالات الطوارئ لإنقاذ حياة.</p></div>
+            <div class="feature-card"><div class="feature-icon" style="background: rgba(52,152,219,0.1); color: var(--info);"><i class="fas fa-map-marked-alt"></i></div><h3>توجيه جغرافي ذكي</h3><p>توجيه المريض لأقرب مستشفى مناسب لتخصصه وليس الأقرب جغرافياً فقط.</p></div>
+            <div class="feature-card"><div class="feature-icon" style="background: rgba(155,89,182,0.1); color: #9b59b6;"><i class="fas fa-file-medical"></i></div><h3>أرشيف جراحي رقمي</h3><p>توثيق كامل للتاريخ الجراحي والأدوية السابقة مع تنبيهات التخدير والحساسية.</p></div>
+            <div class="feature-card"><div class="feature-icon" style="background: rgba(46,204,113,0.1); color: var(--success);"><i class="fas fa-shield-alt"></i></div><h3>خصوصية وأمان متقدم</h3><p>حماية البيانات بتقنيات التشفير مع تحكم كامل للمريض في صلاحيات الوصول.</p></div>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand"><div class="nav-logo" style="margin-bottom:4px;"><div class="logo-icon"><i class="fas fa-heartbeat"></i></div>Doctor<span>Smart</span></div><p>نظام معلومات صحي ذكي قائم على التكامل الرقمي لتحسين جودة الرعاية الصحية في المستشفيات الحكومية المصرية.</p></div>
+            <div class="footer-col"><h4>روابط سريعة</h4><a href="#" onclick="navigateTo('hospitals')">المستشفيات</a><a href="#" onclick="navigateTo('doctors')">الأطباء</a><a href="#" onclick="navigateTo('booking')">حجز موعد</a><a href="#" onclick="navigateTo('about')">من نحن</a></div>
+            <div class="footer-col"><h4>التخصصات</h4><a href="#" onclick="filterDoctorsBySpecialty('قلب وأوعية دموية')">قلب وأوعية دموية</a><a href="#" onclick="filterDoctorsBySpecialty('عظام')">جراحة العظام</a><a href="#" onclick="filterDoctorsBySpecialty('أطفال')">طب الأطفال</a><a href="#" onclick="filterDoctorsBySpecialty('نساء وتوليد')">نساء وتوليد</a></div>
+            <div class="footer-col"><h4>تواصل معنا</h4><a href="#"><i class="fas fa-phone" style="margin-left:6px;"></i> 16000</a><a href="#"><i class="fas fa-envelope" style="margin-left:6px;"></i> info@smartdoctor.eg</a></div>
+        </div>
+        <div class="footer-bottom"><span>2026 Smart Doctor - مشروع تخرج - معهد النيل العالي</span><div class="footer-social"><a href="#" aria-label="فيسبوك"><i class="fab fa-facebook-f"></i></a><a href="#" aria-label="إنستجرام"><i class="fab fa-instagram"></i></a></div></div>
+    </footer>
+</section>
+
+<!-- ============ المستشفيات ============ -->
+<section class="page" id="page-hospitals">
+    <div class="hospitals-section" style="padding-top:100px;">
+        <div class="section-header"><div class="section-badge"><i class="fas fa-hospital"></i> المستشفيات الحكومية</div><h2>اكتشف المستشفيات المتاحة</h2><p>قائمة شاملة بالمستشفيات الحكومية مع تقييمات حقيقية</p></div>
+        <div class="filter-bar" id="hospitalFilters"></div>
+        <div class="hospitals-grid" id="hospitalsGrid"></div>
+    </div>
+    <footer class="site-footer"><div class="footer-bottom" style="max-width:1320px;margin:0 auto;"><span>2026 Smart Doctor</span></div></footer>
+</section>
+
+<!-- ============ الأطباء ============ -->
+<section class="page" id="page-doctors">
+    <div class="doctors-section" style="padding-top:100px;">
+        <div class="section-header"><div class="section-badge"><i class="fas fa-user-md"></i> فريق الأطباء</div><h2>اختر طبيبك المناسب</h2><p>أطباء متخصصون في المستشفيات الحكومية</p></div>
+        <div class="filter-bar" id="doctorFilters"></div>
+        <div class="doctors-grid" id="doctorsGrid"></div>
+    </div>
+    <footer class="site-footer"><div class="footer-bottom" style="max-width:1320px;margin:0 auto;"><span>2026 Smart Doctor</span></div></footer>
+</section>
+
+<!-- ============ الحجز ============ -->
+<section class="page" id="page-booking">
+    <div class="booking-page">
+        <div class="section-header"><div class="section-badge"><i class="fas fa-calendar-plus"></i> حجز موعد</div><h2>احجز موعدك بسهولة</h2></div>
+        <div class="booking-steps" id="bookingSteps">
+            <div class="step active" data-step="1"><span class="step-num">1</span> اختيار المستشفى</div><div class="step-line"></div>
+            <div class="step" data-step="2"><span class="step-num">2</span> اختيار الطبيب</div><div class="step-line"></div>
+            <div class="step" data-step="3"><span class="step-num">3</span> الموعد والبيانات</div><div class="step-line"></div>
+            <div class="step" data-step="4"><span class="step-num">4</span> التأكيد</div>
+        </div>
+        <div id="bookingContent"></div>
+    </div>
+</section>
+
+<!-- ============ مواعيدي ============ -->
+<section class="page" id="page-appointments">
+    <div class="appointments-page">
+        <div class="section-header"><div class="section-badge"><i class="fas fa-clipboard-list"></i> مواعيدي</div><h2>المواعيد المحجوزة</h2></div>
+        <div id="appointmentsList"></div>
+    </div>
+</section>
+
+<!-- ============ الطوارئ ============ -->
+<section class="page" id="page-emergency">
+    <div class="emergency-page">
+        <div class="section-header"><div class="section-badge" style="background:rgba(231,76,94,0.1);border-color:rgba(231,76,94,0.2);color:var(--danger);"><i class="fas fa-exclamation-triangle"></i> الطوارئ</div><h2>خدمات الطوارئ السريعة</h2></div>
+        <div class="emergency-hero">
+            <div class="emergency-pulse"><i class="fas fa-heartbeat"></i></div>
+            <h2>حدد فصيلة دمك للحصول على مساعدة فورية</h2>
+            <p>كل دقيقة تهم. حدد فصيلة دمك الآن.</p>
+        </div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;text-align:center;">اختر فصيلة دمك</h3>
+        <div class="blood-types-grid" id="bloodTypesGrid"></div>
+        <div id="bloodTypeInfo" style="display:none;margin-bottom:32px;"></div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;">أرقام الطوارئ الهامة</h3>
+        <div class="emergency-contacts">
+            <div class="emergency-contact-card"><div class="ec-icon" style="background:rgba(231,76,94,0.1);color:var(--danger);"><i class="fas fa-ambulance"></i></div><div class="ec-info"><h4>الإسعاف</h4><p>123</p></div></div>
+            <div class="emergency-contact-card"><div class="ec-icon" style="background:rgba(240,160,48,0.1);color:var(--warning);"><i class="fas fa-fire"></i></div><div class="ec-info"><h4>الدفاع المدني</h4><p>180</p></div></div>
+            <div class="emergency-contact-card"><div class="ec-icon" style="background:rgba(52,152,219,0.1);color:var(--info);"><i class="fas fa-shield-alt"></i></div><div class="ec-info"><h4>الشرطة</h4><p>112</p></div></div>
+            <div class="emergency-contact-card"><div class="ec-icon" style="background:rgba(15,204,138,0.1);color:var(--accent);"><i class="fas fa-hospital"></i></div><div class="ec-info"><h4>الخط الساخن للصحة</h4><p>15335</p></div></div>
+            <div class="emergency-contact-card"><div class="ec-icon" style="background:rgba(155,89,182,0.1);color:#9b59b6;"><i class="fas fa-tint"></i></div><div class="ec-info"><h4>بنوك الدم</h4><p>15200</p></div></div>
+            <div class="emergency-contact-card"><div class="ec-icon" style="background:rgba(212,168,83,0.1);color:var(--accent2);"><i class="fas fa-pills"></i></div><div class="ec-info"><h4>السموم</h4><p>0227927052</p></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ السجل الطبي ============ -->
+<section class="page" id="page-records">
+    <div class="cases-page">
+        <div class="section-header">
+            <div class="section-badge"><i class="fas fa-file-medical-alt"></i> السجل الطبي</div>
+            <h2>تقاريري الطبية</h2>
+            <p>سجلك الطبي الشامل ومتابعة كافة كشوفاتك السابقة</p>
+        </div>
+        
+        <div class="cases-header-actions">
+            <div class="cases-search">
+                <input type="text" id="recordsSearch" placeholder="ابحث عن تشخيص أو اسم مستشفى..." oninput="handleRecordsSearch(this.value)">
+                <button class="btn-primary" style="padding:12px 20px; flex:none;" onclick="handleRecordsSearch(document.getElementById('recordsSearch').value)"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <div class="cases-grid" id="recordsGrid">
+            <!-- سيتم إضافة السجلات هنا عبر الجافاسكريبت -->
+        </div>
+    </div>
+</section>
+
+<!-- ============ من نحن ============ -->
+<section class="page" id="page-about">
+    <div class="about-page">
+
+        <!-- البطل -->
+        <div class="about-hero">
+            <div class="uni-name">معهد النيل العالي للعلوم التجارية وتكنولوجيا المعلومات</div>
+            <div class="fac-name">مشروع تخرج </div>
+            <div class="proj-name">نظام معلومات صحي ذكي قائم على التكامل الرقمي<br>لتحسين جودة الرعاية الصحية</div>
+            <div class="proj-name-en">Smart Doctor - Smart Health Information System Based on Digital Integration</div>
+            <div class="year-badge">العام الأكاديمي 2026 / 2025</div>
+        </div>
+
+        <!-- إحصائيات المشروع -->
+        <div class="about-stats">
+            <div class="about-stat-card">
+                <div class="stat-icon"><i class="fas fa-hospital"></i></div>
+                <div class="stat-num">79</div>
+                <div class="stat-label">مستشفى حكومي</div>
+            </div>
+            <div class="about-stat-card">
+                <div class="stat-icon"><i class="fas fa-user-md"></i></div>
+                <div class="stat-num">381</div>
+                <div class="stat-label">طبيب متخصص</div>
+            </div>
+            <div class="about-stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-num">25</div>
+                <div class="stat-label">عضو بالفريق</div>
+            </div>
+            <div class="about-stat-card">
+                <div class="stat-icon"><i class="fas fa-code"></i></div>
+                <div class="stat-num">2129+</div>
+                <div class="stat-label">سطر كود</div>
+            </div>
+        </div>
+
+        <!-- المشرفون -->
+        <div class="about-section">
+            <div class="about-section-title"><i class="fas fa-chalkboard-teacher"></i> إشراف المشروع</div>
+            <div class="supervisors-grid">
+                <div class="supervisor-card">
+                    <div class="supervisor-icon"><i class="fas fa-female"></i></div>
+                    <div class="supervisor-info">
+                        <h3>د / شيماء جمال العدل</h3>
+                        <p>مشرفة المشروع - معهد النيل العالي</p>
+                    </div>
+                </div>
+                <div class="supervisor-card">
+                    <div class="supervisor-icon"><i class="fas fa-female"></i></div>
+                    <div class="supervisor-info">
+                        <h3>د / ايمان عوض</h3>
+                        <p>مشرفة المشروع - معهد النيل العالي</p>
+                    </div>
+                </div>
+                <div class="supervisor-card">
+                    <div class="supervisor-icon"><i class="fas fa-male"></i></div>
+                    <div class="supervisor-info">
+                      <h3>د / احمد على القلا</h3>
+                        <p>مشرف المشروع - معهد النيل العالي</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- فريق العمل -->
+        <div class="about-section">
+            <div class="about-section-title"><i class="fas fa-users-cog"></i> فريق العمل</div>
+            <div class="team-grid" id="teamGrid"></div>
+        </div>
+
+        <!-- وصف المشروع -->
+        <div class="about-section">
+            <div class="about-section-title"><i class="fas fa-info-circle"></i> عن المشروع</div>
+            <div class="about-desc">
+                <strong>Smart Doctor</strong> هو تطبيق ويب متكامل مصمم خصيصاً لخدمة المرضى في <strong>المستشفيات الحكومية المصرية</strong>. يهدف النظام إلى سد الفجوة الرقمية في قطاع الصحة العامة من خلال توفير منصة واحدة تجمع بين:<br><br>
+                <strong>1. الحجز الذكي:</strong> حجز المواعيد الطبية إلكترونياً بدون انتظار في الطوابير، مع اختيار المستشفى والطبيب والوقت المناسب.<br><br>
+                <strong>2. التقييمات الموثوقة:</strong> نظام تقييم مبني على تحليل المشاعر (Sentiment Analysis) لفرز التعليقات الحقيقية من المضللة، مع تقييم طبي معتمد على معايير النظافة والتمريض والأجهزة.<br><br>
+                <strong>3. فصيلة الدم في الطوارئ:</strong> وصول فوري لفصيلة دم المريض في حالات الطوارئ، مما يوفر دقائق ثمينة قد تنقذ حياة - مستوحى من دراسة Robert Garcia (2024).<br><br>
+                <strong>4. التوجيه الجغرافي الذكي:</strong> توجيه المريض للمستشفى الأنسب طبياً وليس الأقرب جغرافياً فقط، مع مراعاة سعة الاستيعاب والتخصصات المتاحة.<br><br>
+                المشروع مبني على تحليل <strong>10 دراسات أكاديمية</strong> منشورة في قواعد بيانات عالمية (IEEE, PubMed, ScienceDirect) خلال الفترة 2019-2026، ويهدف إلى سد 5 فجوات بحثية رئيسية في أنظمة المعلومات الصحية الحالية.
+            </div>
+        </div>
+
+        <!-- التقنيات -->
+        <div class="about-section">
+            <div class="about-section-title"><i class="fas fa-laptop-code"></i> التقنيات المستخدمة</div>
+            <div class="about-stats">
+                <div class="about-stat-card">
+                    <div class="stat-icon"><i class="fab fa-html5"></i></div>
+                    <div class="stat-num" style="font-size:1.2rem;">HTML5</div>
+                    <div class="stat-label">هيكل الصفحة</div>
+                </div>
+                <div class="about-stat-card">
+                    <div class="stat-icon"><i class="fab fa-css3-alt"></i></div>
+                    <div class="stat-num" style="font-size:1.2rem;">CSS3</div>
+                    <div class="stat-label">التصميم والشكل</div>
+                </div>
+                <div class="about-stat-card">
+                    <div class="stat-icon"><i class="fab fa-js-square"></i></div>
+                    <div class="stat-num" style="font-size:1.2rem;">JavaScript</div>
+                    <div class="stat-label">المنطق والتفاعل</div>
+                </div>
+                <div class="about-stat-card">
+                    <div class="stat-icon"><i class="fas fa-database"></i></div>
+                    <div class="stat-num" style="font-size:1.2rem;">LocalStorage</div>
+                    <div class="stat-label">تخزين البيانات</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <footer class="site-footer">
+        <div class="footer-bottom" style="max-width:1320px;margin:0 auto;">
+            <span>2026 Smart Doctor - معهد النيل العالي للعلوم التجارية وتكنولوجيا المعلومات</span>
+        </div>
+    </footer>
+</section>
+    <script>
+        const hospitals=[
+        {id:1,name:"مستشفى القصر العيني الجامعي",centerId:"cairo",city:"القاهرة",type:"جامعي",rating:4.8,reviews:3240,address:"شارع القصر العيني، وسط البلد",phone:"0223654321",specialties:["قلب وأوعية دموية","عظام","أطفال","نساء وتوليد","عيون","أعصاب","جراحة عامة","باطنة"],doctors:85,beds:2200,img:"https://picsum.photos/seed/qasr-aini/600/360"},
+        {id:2,name:"مستشفى عين شمس الجامعي",centerId:"cairo",city:"القاهرة",type:"جامعي",rating:4.5,reviews:2180,address:"شارع عباس العقاد، مدينة نصر",phone:"0224123456",specialties:["قلب وأوعية دموية","عظام","أطفال","جلدية","مسالك بولية","أنف وأذن وحنجرة"],doctors:62,beds:1500,img:"https://picsum.photos/seed/ain-shams/600/360"},
+        {id:3,name:"مستشفى المنصورة الجامعي",centerId:"mansoura",city:"المنصورة",type:"جامعي",rating:4.7,reviews:1920,address:"شارع الجامعة، المنصورة",phone:"0502345678",specialties:["قلب وأوعية دموية","أطفال","نساء وتوليد","عيون","جراحة عامة","باطنة"],doctors:55,beds:1200,img:"https://picsum.photos/seed/mansoura/600/360"},
+        {id:4,name:"مستشفى الإسكندرية الجامعي",centerId:"alex",city:"الإسكندرية",type:"جامعي",rating:4.6,reviews:2560,address:"شارع أبو قير، الإسكندرية",phone:"0342567890",specialties:["قلب وأوعية دموية","عظام","أطفال","نساء وتوليد","أعصاب","صدرية","جراحة عامة"],doctors:70,beds:1800,img:"https://picsum.photos/seed/alex-hosp/600/360"},
+        {id:5,name:"مستشفى الزقازيق الجامعي",centerId:"gharbiya",city:"الشرقية",type:"جامعي",rating:4.4,reviews:1450,address:"شارع الجامعة، الزقازيق",phone:"0552345678",specialties:["عظام","أطفال","نساء وتوليد","جلدية","مسالك بولية","باطنة"],doctors:48,beds:950,img:"https://picsum.photos/seed/zagazig/600/360"},
+        {id:6,name:"مستشفى حميات العباسية",centerId:"cairo",city:"القاهرة",type:"تخصصي",rating:4.3,reviews:1780,address:"شارع حميات العباسية",phone:"0225432100",specialties:["باطنة","صدرية","جهاز هضمي"],doctors:35,beds:600,img:"https://picsum.photos/seed/abbassia/600/360"},
+        {id:7,name:"المعهد القومي للأورام",centerId:"cairo",city:"القاهرة",type:"تخصصي",rating:4.9,reviews:4120,address:"شارع فواد المعلول، المعادي",phone:"0223658899",specialties:["أورام","جراحة عامة","باطنة"],doctors:95,beds:800,img:"https://picsum.photos/seed/cancer-inst/600/360"},
+        {id:8,name:"مستشفى المنيا الجامعي",centerId:"minya",city:"المنيا",type:"جامعي",rating:4.2,reviews:980,address:"شارع الجامعة، المنيا",phone:"0862345678",specialties:["قلب وأوعية دموية","عظام","أطفال","نساء وتوليد","عيون","باطنة"],doctors:42,beds:750,img:"https://picsum.photos/seed/minya-hosp/600/360"},
+        {id:9,name:"مستشفى أسيوط الجامعي",centerId:"assiut",city:"أسيوط",type:"جامعي",rating:4.5,reviews:1650,address:"شارع الجامعة، أسيوط",phone:"0882345678",specialties:["قلب وأوعية دموية","عظام","أطفال","جراحة عامة","أعصاب","صدرية"],doctors:58,beds:1300,img:"https://picsum.photos/seed/assiut/600/360"},
+        {id:10,name:"مستشفى طنطا الجامعي",centerId:"gharbiya",city:"الغربية",type:"جامعي",rating:4.3,reviews:1120,address:"شارع الجامعة، طنطا",phone:"0403345678",specialties:["قلب وأوعية دموية","أطفال","نساء وتوليد","جلدية","باطنة"],doctors:40,beds:700,img:"https://picsum.photos/seed/tanta/600/360"},
+        {id:11,name:"مستشفى بنها الجامعي",centerId:"qaliubiya",city:"القليوبية",type:"جامعي",rating:4.1,reviews:870,address:"شارع الجامعة، بنها",phone:"0132345678",specialties:["عظام","أطفال","نساء وتوليد","أنف أذن حنجرة","باطنة"],doctors:36,beds:550,img:"https://picsum.photos/seed/banha/600/360"},
+        {id:12,name:"مستشفى سوهاج الجامعي",centerId:"sohag",city:"سوهاج",type:"جامعي",rating:4.2,reviews:760,address:"شارع الجامعة، سوهاج",phone:"0932345678",specialties:["قلب وأوعية دموية","عظام","أطفال","نساء وتوليد","جراحة عامة"],doctors:38,beds:650,img:"https://picsum.photos/seed/sohag/600/360"}
+        ];
+        
+        const centers=[
+        {id:"mansoura",name:"مركز المنصورة",gov:"الدقهلية",city:"المنصورة"},
+        {id:"meet-ghamr",name:"مركز ميت غمر",gov:"الدقهلية",city:"ميت غمر"},
+        {id:"senblaween",name:"مركز السنبلاوين",gov:"الدقهلية",city:"السنبلاوين"},
+        {id:"talkha",name:"مركز طلخا",gov:"الدقهلية",city:"طلخا"},
+        {id:"belqas",name:"مركز بلقاس",gov:"الدقهلية",city:"بلقاس"},
+        {id:"dekrnes",name:"مركز دكرنس",gov:"الدقهلية",city:"دكرنس"},
+        {id:"sharbeen",name:"مركز شربين",gov:"الدقهلية",city:"شربين"},
+        {id:"aga",name:"مركز أجا",gov:"الدقهلية",city:"أجا"},
+        {id:"manzala",name:"مركز المنزلة",gov:"الدقهلية",city:"المنزلة"},
+        {id:"metariya",name:"مركز المطرية",gov:"الدقهلية",city:"المطرية"},
+        {id:"gamaliya",name:"مركز الجمالية",gov:"الدقهلية",city:"الجمالية"},
+        {id:"minyet-nasr",name:"مركز منية النصر",gov:"الدقهلية",city:"منية النصر"},
+        {id:"meet-selseel",name:"مركز ميت سلسيل",gov:"الدقهلية",city:"ميت سلسيل"},
+        {id:"el-kordi",name:"مركز الكردي",gov:"الدقهلية",city:"الكردي"},
+        {id:"beni-obeid",name:"مركز بني عبيد",gov:"الدقهلية",city:"بني عبيد"},
+        {id:"tamy-ameed",name:"مركز تمي الأمديد",gov:"الدقهلية",city:"تمي الأمديد"},
+        {id:"nabroh",name:"مركز نبروه",gov:"الدقهلية",city:"نبروه"},
+        {id:"gamsa",name:"مركز جمصة",gov:"الدقهلية",city:"جمصة"},
+        {id:"mahalla-damna",name:"مركز محلة دمنة",gov:"الدقهلية",city:"محلة دمنة"},
+        {id:"cairo",name:"القاهرة",gov:"القاهرة",city:"القاهرة"},
+        {id:"alex",name:"الإسكندرية",gov:"الإسكندرية",city:"الإسكندرية"},
+        {id:"minya",name:"المنيا",gov:"المنيا",city:"المنيا"},
+        {id:"assiut",name:"أسيوط",gov:"أسيوط",city:"أسيوط"},
+        {id:"gharbiya",name:"الشرقية / الغربية",gov:"الشرقية",city:"الزقازيق"},
+        {id:"qaliubiya",name:"القليوبية",gov:"القليوبية",city:"بنها"},
+        {id:"sohag",name:"سوهاج",gov:"سوهاج",city:"سوهاج"}
+        ];
+        
+        const governorates=[];
+        const _gm={};
+        centers.forEach(c=>{if(!_gm[c.gov])_gm[c.gov]={name:c.gov,count:0,icon:'fa-map-marker-alt'};_gm[c.gov].count++;});
+        _gm['الدقهلية'].icon='fa-star';
+        _gm['القاهرة'].icon='fa-landmark';
+        _gm['الإسكندرية'].icon='fa-water';
+        Object.keys(_gm).forEach(g=>governorates.push({id:g,name:g,count:_gm[g].count,icon:_gm[g].icon}));
+        
+        const _dh=[[13,"مستشفى المنصورة الدولي","mansoura","تخصصي","جراحة عامة,أمراض الكلى,أطفال,باطنة",5],[14,"مستشفى المنصورة العام الجديد","mansoura","عام","جراحة,مسالك بولية,أطفال,أنف وأذن,رمد",5],[15,"مستشفى الطوارئ الجامعي","mansoura","جامعي","جراحة الجهاز الهضمي,جراحة العظام,جراحة عامة,جراحة مخ وأعصاب,تخدير وعناية مركزة",5],[16,"مركز أمراض الكلى والمسالك (مركز غنيم)","mansoura","تخصصي","جراحة المسالك البولية,أمراض الكلى,مسالك بولية",5],[17,"مستشفى الباطنة التخصصي (جامعة المنصورة)","mansoura","تخصصي","باطنة وجهاز هضمي,باطنة وقلب,كبد وجهاز هضمي,مناظير",5],[18,"مستشفى ميت غمر العام","meet-ghamr","عام","باطنة,جراحة عظام,نساء وتوليد,جراحة عامة,أطفال",5],[19,"مستشفى الكلى والمسالك بميت غمر","meet-ghamr","تخصصي","مسالك بولية,أمراض الكلى,باطنة,تحاليل طبية",5],[20,"مستشفى المبرة (تأمين صحي)","meet-ghamr","تخصصي","جراحة,قلب وصدر,جلدية,عظام,باطنة",5],[21,"مستشفى الأورام بميت غمر","meet-ghamr","تخصصي","أورام,جراحة أورام,أشعة,باطنة أورام,تخدير",5],[22,"مستشفى حميات ميت غمر","meet-ghamr","تخصصي","أمراض معدية,حميات,كبد وجهاز هضمي,صدر",5],[23,"مستشفى السنبلاوين العام","senblaween","عام","جراحة,أطفال,أنف وأذن,نساء وتوليد,عظام",5],[24,"مستشفى المقاطعة المركزي","senblaween","عام","باطنة,جراحة,أطفال,عظام,نساء وتوليد",5],[25,"مركز الكلى بالسنبلاوين","senblaween","تخصصي","مسالك بولية,كلى صناعي,باطنة,جراحة مسالك,معامل",5],[26,"مستشفى الحميات بالسنبلاوين","senblaween","تخصصي","حميات,كبد,باطنة,صدر,أطفال",5],[27,"مستشفى شبراويش المركزي","senblaween","عام","باطنة,جراحة,أطفال,عظام",5],[28,"مستشفى طلخا المركزي","talkha","عام","عظام,جراحة عامة,باطنة,أطفال,نساء وتوليد",5],[29,"مستشفى دميرة المركزي","talkha","عام","باطنة,جراحة,نساء وتوليد,عظام,رمد",5],[30,"مستشفى بساط المركزي","talkha","عام","جراحة,عظام,باطنة,أطفال,أسنان",5],[31,"مركز الكلى بطلخا","talkha","تخصصي","مسالك بولية,كلى صناعي,جراحة مسالك,باطنة",5],[32,"مستشفى بلقاس المركزي","belqas","عام","جراحة عامة,عظام,باطنة,أطفال,نساء وتوليد",5],[33,"مستشفى المعصرة المركزي","belqas","عام","باطنة,جراحة,نساء وتوليد,أطفال,أسنان",5],[34,"مركز الكلى ببلقاس","belqas","تخصصي","مسالك بولية,كلى صناعي,مسالك,باطنة,معامل",5],[35,"مستشفى ستاموني المركزي","belqas","عام","جراحة,رمد,باطنة,أطفال,عظام",5],[36,"مستشفى بلقاس العام الجديد","belqas","عام","عظام,جراحة,نساء وتوليد,أطفال,باطنة",5],[37,"مستشفى دكرنس العام","dekrnes","عام","جراحة,عظام,أطفال,باطنة,أنف وأذن",5],[38,"مستشفى حميات دكرنس","dekrnes","تخصصي","كبد وحميات,أمراض معدية,صدر,باطنة",5],[39,"مستشفى الصدر بدكرنس","dekrnes","تخصصي","أمراض صدرية,صدر,باطنة,أشعة,قلب",5],[40,"مركز الكلى بدكرنس","dekrnes","تخصصي","مسالك بولية,كلى صناعي,جراحة مسالك,باطنة,مختبرات",5],[41,"مستشفى منشأة عبد الرحمن","dekrnes","عام","باطنة,أطفال,نساء وتوليد,جراحة,جلدية",5],[42,"مستشفى شربين المركزي","sharbeen","عام","نساء وتوليد,عظام,جراحة,أطفال,مسالك بولية",5],[43,"مركز الكلى بشربين","sharbeen","تخصصي","مسالك بولية,كلى صناعي,باطنة,قلب,كبد",5],[44,"مستشفى بساط الكريم الدين","sharbeen","عام","جراحة,باطنة,عظام,أطفال,رمد",5],[45,"مستشفى شربين العام الجديد","sharbeen","عام","جراحة عامة,نساء وتوليد,عظام,مخ وأعصاب,تخدير",5],[46,"مستشفى الرمد بشربين","sharbeen","تخصصي","رمد,عيون,جراحة عيون,باطنة,مختبرات",5],[47,"مستشفى أجا المركزي","aga","عام","قلب وصدر,نساء وتوليد,عظام,باطنة,جراحة",5],[48,"مستشفى نوسا الغيط","aga","عام","جراحة,أطفال,عظام,باطنة,نساء وتوليد",5],[49,"مستشفى صهرجت الصغرى","aga","عام","باطنة,حميات,أطفال,جراحة,جلدية",5],[50,"مستشفى شنيسة","aga","عام","باطنة,أطفال,جراحة,نساء وتوليد,عظام",5],[51,"مستشفى ميت عامل","aga","عام","عظام,أطفال,باطنة,نساء وتوليد,جراحة",5],[52,"مستشفى المنزلة العام","manzala","عام","جراحة عامة,عظام,أطفال,باطنة,أنف وأذن",5],[53,"مستشفى حميات المنزلة","manzala","تخصصي","حميات,باطنة,كبد",5],[54,"مركز الكلى بالمنزلة","manzala","تخصصي","مسالك بولية,كلى صناعي,جراحة مسالك,باطنة,مختبرات",5],[55,"مستشفى المطرية المركزي","metariya","عام","باطنة,جراحة,نساء وتوليد,حميات,كبد,أطفال",5],[56,"مستشفى حميات المطرية","metariya","تخصصي","حميات,باطنة,معامل,قلب",5],[57,"مركز الكلى بالمطرية","metariya","تخصصي","مسالك بولية,كلى صناعي",5],[58,"مستشفى الجمالية المركزي","gamaliya","عام","جراحة,كلى صناعي,مسالك بولية,أمراض صدرية,باطنة,أطفال,أشعة,نساء وتوليد",5],[59,"مستشفى منية النصر المركزي","minyet-nasr","عام","جراحة عامة,عظام,أنف أذن حنجرة,باطنة,أطفال",5],[60,"مستشفى حميات منية النصر","minyet-nasr","تخصصي","أمراض معدية,باطنة وكبد,حميات,أطفال,تحاليل طبية",5],[61,"مستشفى ميت سلسيل المركزي","meet-selseel","عام","حميات وكبد,أمراض صدرية,أطفال,باطنة,جراحة,مسالك بولية,جلدية",5],[62,"مستشفى الكردي العام","el-kordi","عام","باطنة,أطفال,جراحة عامة,عظام,نساء وتوليد",5],[63,"مستشفى بني عبيد التخصصي","beni-obeid","تخصصي","جراحة عامة,مسالك بولية,أمراض الكلى,أطفال,عظام",5],[64,"مستشفى تمي الأمديد المركزي","tamy-ameed","عام","باطنة,أطفال,نساء وتوليد,جراحة,تخدير وعناية مركزة,صدر",5],[65,"مستشفى نبروه المركزي","nabroh","عام","جراحة عامة,أنف أذن حنجرة,باطنة,أطفال,قلب وأوعية دموية",5],[66,"مستشفى بهوت المركزي","nabroh","عام","باطنة,جراحة,نساء وتوليد,عظام,رمد",5],[67,"وحدة طب الأسرة بنبروه","nabroh","وحدة صحية","ممارسة عامة,أسنان,أطفال,باطنة,تنظيم أسرة",5],[68,"مستشفى كفر الجنينة","nabroh","عام","جراحة,عظام,باطنة,أطفال,نساء وتوليد",5],[69,"مستشفى درين","nabroh","عام","عظام,جراحة عامة,باطنة,أطفال,نساء وتوليد",5],[70,"مستشفى جمصة المركزي","gamsa","عام","باطنة وقلب,جراحة وطوارئ,نساء وتوليد,أسنان,أطفال",5],[71,"مستشفى القوات المسلحة بجمصة","gamsa","تخصصي","إدارة طبية,عظام,باطنة,جراحة,تخدير",5],[72,"مركز طب الأسرة بالمنطقة الصناعية بجمصة","gamsa","وحدة صحية","ممارسة عامة,باطنة,أطفال,طب أسرة,طوارئ",5],[73,"وحدة 15 مايو الصحية","gamsa","وحدة صحية","باطنة,نساء وتوليد,أطفال,أسنان,ممارسة عامة",5],[74,"مركز الحروق والتجميل بجمصة","gamsa","تخصصي","جراحة تجميل,جراحة,تخدير,عظام,باطنة",5],[75,"مستشفى محلة دمنة المركزي","mahalla-damna","عام","باطنة,كبد وجهاز هضمي,أطفال,جراحة,نساء وتوليد",5],[76,"المركز الطبي بمحلة دمنة","mahalla-damna","تخصصي","طب أسرة,أطفال,باطنة,أسنان,ممارسة عامة",5],[77,"مستشفى التكامل بشاوة","mahalla-damna","عام","جراحة,أطفال,باطنة,نساء وتوليد,أسنان",5],[78,"وحدة طب الأسرة بكفر البرامون","mahalla-damna","وحدة صحية","باطنة,أطفال,أسنان,تنظيم أسرة,ممارسة عامة",5],[79,"مستشفى بدواي المركزي","mahalla-damna","عام","جراحة,نساء وتوليد,عظام,باطنة,أطفال",5]];
+        _dh.forEach(h=>{const c=centers.find(x=>x.id===h[2]);hospitals.push({id:h[0],name:h[1],centerId:h[2],city:c?c.city:'',type:h[3],rating:parseFloat((3.8+(h[0]*13%11)/10).toFixed(1)),reviews:30+(h[0]*17%171),address:(c?c.city:'')+'، الدقهلية',phone:'',specialties:h[4].split(','),doctors:h[5],beds:50+(h[0]*7%151),img:'https://picsum.photos/seed/dak-'+h[0]+'/600/360'});});
+        
+        const doctors=[
+        {id:1,name:"د. أحمد مرسي عبد الرحمن",specialty:"قلب وأوعية دموية",hospitalId:1,hospitalName:"القصر العيني",rating:4.9,reviews:520,experience:22,fee:"مجاني",available:true,icon:"fa-heart"},
+        {id:2,name:"د. سارة حسن إبراهيم",specialty:"نساء وتوليد",hospitalId:1,hospitalName:"القصر العيني",rating:4.8,reviews:380,experience:18,fee:"مجاني",available:true,icon:"fa-baby"},
+        {id:3,name:"د. محمد عادل فهمي",specialty:"عظام",hospitalId:1,hospitalName:"القصر العيني",rating:4.7,reviews:290,experience:15,fee:"مجاني",available:true,icon:"fa-bone"},
+        {id:4,name:"د. فاطمة الزهراء علي",specialty:"أطفال",hospitalId:2,hospitalName:"عين شمس",rating:4.8,reviews:410,experience:20,fee:"مجاني",available:true,icon:"fa-child"},
+        {id:5,name:"د. خالد عبد الله محمود",specialty:"قلب وأوعية دموية",hospitalId:2,hospitalName:"عين شمس",rating:4.6,reviews:310,experience:16,fee:"مجاني",available:false,icon:"fa-heart"},
+        {id:6,name:"د. نورا أحمد سعيد",specialty:"عيون",hospitalId:2,hospitalName:"عين شمس",rating:4.7,reviews:245,experience:12,fee:"مجاني",available:true,icon:"fa-eye"},
+        {id:7,name:"د. عمرو حسام الدين",specialty:"جراحة عامة",hospitalId:3,hospitalName:"المنصورة الجامعي",rating:4.9,reviews:460,experience:25,fee:"مجاني",available:true,icon:"fa-cut"},
+        {id:8,name:"د. هدى محمد صالح",specialty:"جلدية",hospitalId:2,hospitalName:"عين شمس",rating:4.5,reviews:198,experience:10,fee:"مجاني",available:true,icon:"fa-hand-sparkles"},
+        {id:9,name:"د. ياسر طارق إبراهيم",specialty:"أعصاب",hospitalId:4,hospitalName:"الإسكندرية",rating:4.8,reviews:350,experience:19,fee:"مجاني",available:true,icon:"fa-brain"},
+        {id:10,name:"د. منى عبد العزيز حسن",specialty:"نساء وتوليد",hospitalId:3,hospitalName:"المنصورة الجامعي",rating:4.7,reviews:320,experience:17,fee:"مجاني",available:true,icon:"fa-baby"},
+        {id:11,name:"د. حسام مجدي عبد الله",specialty:"عظام",hospitalId:4,hospitalName:"الإسكندرية",rating:4.6,reviews:270,experience:14,fee:"مجاني",available:true,icon:"fa-bone"},
+        {id:12,name:"د. رانيا سعيد أحمد",specialty:"أطفال",hospitalId:5,hospitalName:"الزقازيق",rating:4.5,reviews:185,experience:11,fee:"مجاني",available:true,icon:"fa-child"},
+        {id:13,name:"د. طارق مصطفى كامل",specialty:"صدرية",hospitalId:6,hospitalName:"حميات العباسية",rating:4.8,reviews:430,experience:21,fee:"مجاني",available:true,icon:"fa-lungs"},
+        {id:14,name:"د. إيمان عبد الرحمن حسن",specialty:"باطنة",hospitalId:6,hospitalName:"حميات العباسية",rating:4.6,reviews:260,experience:15,fee:"مجاني",available:false,icon:"fa-stethoscope"},
+        {id:15,name:"د. وليد عبد الحميد غنيم",specialty:"مسالك بولية",hospitalId:2,hospitalName:"عين شمس",rating:4.4,reviews:165,experience:13,fee:"مجاني",available:true,icon:"fa-tint"},
+        {id:16,name:"د. شيماء عطا الله",specialty:"أنف وأذن وحنجرة",hospitalId:5,hospitalName:"الزقازيق",rating:4.5,reviews:150,experience:9,fee:"مجاني",available:true,icon:"fa-head-side-mask"},
+        {id:17,name:"د. محمود شاهين عبد الرحمن",specialty:"أورام",hospitalId:7,hospitalName:"المعهد القومي للأورام",rating:4.9,reviews:620,experience:28,fee:"مجاني",available:true,icon:"fa-ribbon"},
+        {id:18,name:"د. آية صلاح الدين",specialty:"أطفال",hospitalId:8,hospitalName:"المنيا",rating:4.4,reviews:140,experience:8,fee:"مجاني",available:true,icon:"fa-child"},
+        {id:19,name:"د. عبد الرحمن فتحي محمد",specialty:"قلب وأوعية دموية",hospitalId:9,hospitalName:"أسيوط",rating:4.7,reviews:280,experience:16,fee:"مجاني",available:true,icon:"fa-heart"},
+        {id:20,name:"د. نادية حسين عبد الله",specialty:"نساء وتوليد",hospitalId:10,hospitalName:"طنطا",rating:4.5,reviews:210,experience:13,fee:"مجاني",available:true,icon:"fa-baby"},
+        {id:21,name:"د. Karim El-Dessouky",specialty:"جراحة عامة",hospitalId:7,hospitalName:"المعهد القومي للأورام",rating:4.8,reviews:390,experience:20,fee:"مجاني",available:true,icon:"fa-cut"},
+        {id:22,name:"د. هاني عبد الغفار",specialty:"عظام",hospitalId:9,hospitalName:"أسيوط",rating:4.6,reviews:230,experience:14,fee:"مجاني",available:true,icon:"fa-bone"},
+        {id:23,name:"د. سمر يوسف إبراهيم",specialty:"عيون",hospitalId:11,hospitalName:"بنها",rating:4.3,reviews:120,experience:7,fee:"مجاني",available:true,icon:"fa-eye"},
+        {id:24,name:"د. مصطفى حسن علي",specialty:"أعصاب",hospitalId:1,hospitalName:"القصر العيني",rating:4.8,reviews:340,experience:18,fee:"مجاني",available:true,icon:"fa-brain"}
+        ];
+        
+        function specIcon(s){if(s.includes('تجميل'))return'fa-magic';if(s.includes('أورام')&&s.includes('جراحة'))return'fa-ribbon';if(s.includes('مسالك')&&s.includes('جراحة'))return'fa-tint';if(s.includes('عظام')&&s.includes('جراحة'))return'fa-bone';if(s.includes('عيون')&&s.includes('جراحة'))return'fa-eye';if(s.includes('هضمي')&&s.includes('جراحة'))return'fa-cut';if(s.includes('طوارئ')&&s.includes('جراحة'))return'fa-ambulance';if(s.includes('مخ')&&s.includes('جراحة'))return'fa-brain';if(s.includes('جراحة'))return'fa-cut';if(s.includes('قلب'))return'fa-heart';if(s.includes('صدر'))return'fa-lungs';if(s.includes('كبد')||s.includes('هضمي'))return'fa-stethoscope';if(s.includes('كلى'))return'fa-tint';if(s.includes('مسالك'))return'fa-tint';if(s.includes('حميات')||s.includes('معدية'))return'fa-virus';if(s.includes('أطفال'))return'fa-child';if(s.includes('نسا')||s.includes('توليد'))return'fa-baby';if(s.includes('أنف')||s.includes('أذن'))return'fa-head-side-mask';if(s.includes('رمد'))return'fa-eye';if(s.includes('جلدية'))return'fa-hand-sparkles';if(s.includes('أشعة'))return'fa-x-ray';if(s.includes('تخدير'))return'fa-syringe';if(s.includes('أسنان'))return'fa-tooth';if(s.includes('تحليل')||s.includes('معمل')||s.includes('مختبر'))return'fa-flask';if(s.includes('أعصاب')||s.includes('مخ'))return'fa-brain';if(s.includes('مناظير'))return'fa-search';if(s.includes('تنظيم')||s.includes('أسرة')||s.includes('ممارسة')||s.includes('طب أسرة'))return'fa-user-md';if(s.includes('إدارة طبية'))return'fa-user-md';if(s.includes('طوارئ'))return'fa-ambulance';if(s.includes('باطنة'))return'fa-stethoscope';return'fa-stethoscope';}
+        
+        const _dd=`د. أحمد حشيش|جراحة عامة|13
+        د. أسامة الشحات|أمراض الكلى|13
+        د. محمد السعيد|جراحة|13
+        د. إبراهيم شلبي|باطنة|13
+        د. أحمد منصور|أطفال|13
+        د. شريف مكين|جراحة|14
+        د. سمير كمال|مسالك بولية|14
+        د. نادية العريان|أطفال|14
+        د. هشام عياد|أنف وأذن|14
+        د. منى زكي|رمد|14
+        د. أمير فكري|جراحة الجهاز الهضمي|15
+        د. خالد الطوخي|جراحة العظام|15
+        د. وائل خفاجي|جراحة عامة|15
+        د. محمد الغندور|جراحة مخ وأعصاب|15
+        د. أمل رشاد|تخدير وعناية مركزة|15
+        د. باسم صلاح|جراحة المسالك البولية|16
+        د. أحمد شقير|جراحة المسالك البولية|16
+        د. بدير علي الدين|مسالك بولية|16
+        د. أيمن الرفاعي|أمراض الكلى|16
+        د. محمود حمودة|مسالك بولية|16
+        د. حازم حكيم|باطنة وجهاز هضمي|17
+        د. محمد ياقوت|باطنة وقلب|17
+        د. أيمن الشرباصي|كبد وجهاز هضمي|17
+        د. سهام سيف|باطنة وكلى|17
+        د. محمود يوسف|مناظير|17
+        د. أحمد رشدي|باطنة|18
+        د. محمد عبد العظيم|جراحة عظام|18
+        د. إيمان الصاوي|نساء وتوليد|18
+        د. محمود أبو طالب|جراحة عامة|18
+        د. سارة يوسف|أطفال|18
+        د. أحمد ضياء|مسالك بولية|19
+        د. هاني السعيد|أمراض الكلى|19
+        د. رشا مجدي|باطنة|19
+        د. علي السنباطي|مسالك بولية|19
+        د. هبة الغريب|تحاليل طبية|19
+        د. وليد سمير|جراحة|20
+        د. مجدي كمال|قلب وصدر|20
+        د. نهى السعيد|جلدية|20
+        د. تامر المصلحي|عظام|20
+        د. صفاء مرسي|باطنة|20
+        د. محمد الشال|أورام|21
+        د. رامي يسري|جراحة أورام|21
+        د. هند علي|أشعة|21
+        د. محمد نبيل|باطنة أورام|21
+        د. أحمد الجزار|تخدير|21
+        د. السيد الفرماوي|أمراض معدية|22
+        د. مرفت عبد الرؤوف|حميات|22
+        د. حاتم نصار|كبد وجهاز هضمي|22
+        د. دعاء كمال|باطنة|22
+        د. محمود الشريف|صدر|22
+        د. محمد السعيد|جراحة|23
+        د. علاء القطب|أطفال|23
+        د. محمود عزمي|أنف وأذن|23
+        د. إيناس حمدي|نساء وتوليد|23
+        د. حسن الجمل|عظام|23
+        د. أحمد السعدني|باطنة|24
+        د. هاني إبراهيم|جراحة|24
+        د. مروة صبري|أطفال|24
+        د. خالد الشربيني|عظام|24
+        د. لمياء فوزي|نساء وتوليد|24
+        د. عماد الصاوي|مسالك بولية|25
+        د. سامح محمد|كلى صناعي|25
+        د. فاطمة الزهراء|باطنة|25
+        د. أحمد لبيب|جراحة مسالك|25
+        د. نهاد سمير|معامل|25
+        د. جمال عبد المجيد|حميات|26
+        د. زينب الشحات|كبد|26
+        د. محمد جودة|باطنة|26
+        د. إبراهيم زكي|صدر|26
+        د. نورا فريد|أطفال|26
+        د. أحمد فؤاد|باطنة|27
+        د. محمد مرزوق|جراحة|27
+        د. ريهام البدوي|أطفال|27
+        د. صبري الطنطاوي|عظام|27
+        د. ميساء غانم|باطنة|27
+        د. تامر المصلحي|عظام|28
+        د. محمد كمال|جراحة عامة|28
+        د. نهال عبد العزيز|باطنة|28
+        د. عادل نبيل|أطفال|28
+        د. سمر توفيق|نساء وتوليد|28
+        د. السيد العبد|باطنة|29
+        د. وائل رجب|جراحة|29
+        د. أميرة كمال|نساء وتوليد|29
+        د. هاني يسري|عظام|29
+        د. منى الشحات|رمد|29
+        د. أشرف فوزي|جراحة|30
+        د. محمد يسري|عظام|30
+        د. نهى جلال|باطنة|30
+        د. محمود عادل|أطفال|30
+        د. داليا المرسي|أسنان|30
+        د. حسن الغندور|مسالك بولية|31
+        د. وفاء علي|كلى صناعي|31
+        د. محمد يس|جراحة مسالك|31
+        د. هالة إبراهيم|باطنة|31
+        د. ياسر محمود|مسالك بولية|31
+        د. السيد فاروق|جراحة عامة|32
+        د. محمد الشربيني|عظام|32
+        د. نهلة محمد|باطنة|32
+        د. أحمد الجزار|أطفال|32
+        د. نورهان علي|نساء وتوليد|32
+        د. محمد جاد|باطنة|33
+        د. إيهاب عبد العظيم|جراحة|33
+        د. دعاء كمال|نساء وتوليد|33
+        د. محمود يسري|أطفال|33
+        د. سمر توفيق|أسنان|33
+        د. وائل رجب|مسالك بولية|34
+        د. فاطمة الزهراء|كلى صناعي|34
+        د. محمد نبيل|مسالك بولية|34
+        د. رشا مجدي|باطنة|34
+        د. إبراهيم شلبي|معامل|34
+        د. أحمد مرعي|جراحة|35
+        د. منى الشحات|رمد|35
+        د. هاني إبراهيم|باطنة|35
+        د. سارة يوسف|أطفال|35
+        د. وليد سمير|عظام|35
+        د. تامر المصلحي|عظام|36
+        د. خالد الشربيني|جراحة|36
+        د. لمياء فوزي|نساء وتوليد|36
+        د. عادل نبيل|أطفال|36
+        د. نهال عبد العزيز|باطنة|36
+        د. أحمد السعدني|جراحة|37
+        د. محمد مرزوق|عظام|37
+        د. ريهام البدوي|أطفال|37
+        د. ميساء غانم|باطنة|37
+        د. صبري الطنطاوي|أنف وأذن|37
+        د. حاتم نصار|كبد وحميات|38
+        د. مرفت عبد الرؤوف|أمراض معدية|38
+        د. محمود الشريف|صدر|38
+        د. زينب الشحات|باطنة|38
+        د. جمال عبد المجيد|كبد وجهاز هضمي|38
+        د. هبة الغريب|أمراض صدرية|39
+        د. إبراهيم زكي|صدر|39
+        د. نورا فريد|باطنة|39
+        د. محمد جودة|أشعة|39
+        د. رانيا نبيل|قلب|39
+        د. علي السنباطي|مسالك بولية|40
+        د. وفاء علي|كلى صناعي|40
+        د. أحمد لبيب|جراحة مسالك|40
+        د. هاني يسري|باطنة|40
+        د. صفاء مرسي|مختبرات|40
+        د. أشرف فوزي|باطنة|41
+        د. هالة إبراهيم|أطفال|41
+        د. داليا المرسي|نساء وتوليد|41
+        د. ياسر محمود|جراحة|41
+        د. مروة صبري|جلدية|41
+        د. إيناس حمدي|نساء وتوليد|42
+        د. حسن الجمل|عظام|42
+        د. محمود عزمي|جراحة|42
+        د. علاء القطب|أطفال|42
+        د. سمير كمال|مسالك بولية|42
+        د. محمد الشال|مسالك بولية|43
+        د. هند علي|كلى صناعي|43
+        د. رامي يسري|باطنة|43
+        د. محمد ياقوت|قلب|43
+        د. سهام سيف|كبد|43
+        د. عادل المرسي|جراحة|44
+        د. رانيا نبيل|باطنة|44
+        د. أحمد صالح|عظام|44
+        د. هبة الله محمود|أطفال|44
+        د. محمد علي|رمد|44
+        د. وائل خفاجي|جراحة عامة|45
+        د. أميرة كمال|نساء وتوليد|45
+        د. خالد الطوخي|عظام|45
+        د. محمد الغندور|مخ وأعصاب|45
+        د. أمل رشاد|تخدير|45
+        د. منى زكي|رمد|46
+        د. نادية العريان|عيون|46
+        د. هشام عياد|جراحة عيون|46
+        د. أسامة الشحات|باطنة|46
+        د. إبراهيم شلبي|مختبرات|46
+        د. مجدي كمال|قلب وصدر|47
+        د. نهى السعيد|نساء وتوليد|47
+        د. وليد سمير|عظام|47
+        د. صفاء مرسي|باطنة|47
+        د. تامر المصلحي|جراحة|47
+        د. أحمد فؤاد|جراحة|48
+        د. ريهام البدوي|أطفال|48
+        د. صبري الطنطاوي|عظام|48
+        د. ميساء غانم|باطنة|48
+        د. محمد مرزوق|نساء وتوليد|48
+        د. السيد الفرماوي|باطنة|49
+        د. حاتم نصار|حميات|49
+        د. دعاء كمال|أطفال|49
+        د. محمود الشريف|جراحة|49
+        د. مرفت عبد الرؤوف|جلدية|49
+        د. أحمد رشدي|باطنة|50
+        د. سارة يوسف|أطفال|50
+        د. محمود أبو طالب|جراحة|50
+        د. إيمان الصاوي|نساء وتوليد|50
+        د. محمد عبد العظيم|عظام|50
+        د. تامر المصلحي|عظام|51
+        د. عادل نبيل|أطفال|51
+        د. نهال عبد العزيز|باطنة|51
+        د. سمر توفيق|نساء وتوليد|51
+        د. محمد كمال|جراحة|51
+        د. السيد فاروق|جراحة عامة|52
+        د. أحمد الجزار|أطفال|52
+        د. نهلة محمد|باطنة|52
+        د. أحمد السعدني|جراحة|52
+        د. محمد مرزوق|عظام|52
+        د. ريهام البدوي|أطفال|52
+        د. ميساء غانم|باطنة|52
+        د. صبري الطنطاوي|أنف وأذن|52
+        د. أحمد مرعي|حميات|53
+        د. منى الشحات|باطنة|53
+        د. هاني إبراهيم|كبد|53
+        د. علي السنباطي|مسالك بولية|54
+        د. وفاء علي|كلى صناعي|54
+        د. أحمد لبيب|جراحة مسالك|54
+        د. هاني يسري|باطنة|54
+        د. صفاء مرسي|مختبرات|54
+        د. محمد جاد|باطنة|55
+        د. إيهاب عبد العظيم|جراحة|55
+        د. دعاء كمال|نساء وتوليد|55
+        د. حاتم نصار|حميات|55
+        د. مرفت عبد الرؤوف|أطفال|55
+        د. محمود الشريف|جراحة|55
+        د. زينب الشحات|باطنة|55
+        د. جمال عبد المجيد|كبد|55
+        د. أشرف فوزي|حميات|56
+        د. هالة إبراهيم|باطنة|56
+        د. داليا المرسي|معامل|56
+        د. ياسر محمود|حميات|56
+        د. مروة صبري|قلب|56
+        د. تامر المصلحي|مسالك بولية|57
+        د. خالد الشربيني|مسالك بولية|57
+        د. لمياء فوزي|كلى صناعي|57
+        د. وائل رجب|جراحة|58
+        د. فاطمة الزهراء|كلى صناعي|58
+        د. محمد نبيل|مسالك بولية|58
+        د. هبة الغريب|أمراض صدرية|58
+        د. إبراهيم زكي|باطنة|58
+        د. نورا فريد|أطفال|58
+        د. محمد جودة|أشعة|58
+        د. رانيا نبيل|نساء وتوليد|58
+        د. أحمد السعدني|جراحة عامة|59
+        د. محمد مرزوق|عظام|59
+        د. صبري الطنطاوي|أنف أذن حنجرة|59
+        د. ميساء غانم|باطنة|59
+        د. لمياء فوزي|أطفال|59
+        د. السيد الفرماوي|أمراض معدية|60
+        د. دعاء كمال|باطنة وكبد|60
+        د. محمود أبو طالب|حميات|60
+        د. سارة يوسف|أطفال|60
+        د. إيمان الصاوي|تحاليل طبية|60
+        د. حاتم نصار|حميات وكبد|61
+        د. محمود الشريف|أمراض صدرية|61
+        د. مرفت عبد الرؤوف|أطفال|61
+        د. زينب الشحات|باطنة|61
+        د. جمال عبد المجيد|جراحة|61
+        د. محمد المصلحي|باطنة|61
+        د. أحمد منصور|جراحة عامة|61
+        د. رامي يسري|مسالك بولية|61
+        د. هند علي|أطفال|61
+        د. أسماء الجزار|جلدية|61
+        د. هبة الغريب|باطنة|62
+        د. إبراهيم زكي|باطنة|62
+        د. نورا فريد|أطفال|62
+        د. ناصر جلال|باطنة|62
+        د. أحمد عبد السميع|جراحة عامة|62
+        د. محمد إبراهيم|عظام|62
+        د. منى السعيد|أطفال|62
+        د. وفاء المرسي|نساء وتوليد|62
+        د. محمد السعيد|جراحة عامة|63
+        د. أحمد لبيب|مسالك بولية|63
+        د. وفاء علي|أمراض الكلى|63
+        د. ريهام البدوي|أطفال|63
+        د. هاني يسري|عظام|63
+        د. علي السنباطي|مسالك بولية|63
+        د. أشرف فوزي|باطنة|64
+        د. هالة إبراهيم|أطفال|64
+        د. داليا المرسي|نساء وتوليد|64
+        د. ياسر محمود|جراحة|64
+        د. أحمد السعيد|باطنة|64
+        د. محمد كمال|جراحة|64
+        د. سمر توفيق|أطفال|64
+        د. عادل نبيل|تخدير وعناية مركزة|64
+        د. نهال عبد العزيز|صدر|64
+        د. أحمد مرعي|جراحة عامة|65
+        د. هشام الفضالي|أنف أذن حنجرة|65
+        د. رانيا نبيل|باطنة|65
+        د. محمد الشامي|أطفال|65
+        د. سارة عزمي|قلب وأوعية دموية|65
+        د. السيد العبد|باطنة|66
+        د. وائل رجب|جراحة|66
+        د. أميرة كمال|نساء وتوليد|66
+        د. هاني يسري|عظام|66
+        د. منى الشحات|رمد|66
+        د. حسن الغندور|ممارسة عامة|67
+        د. وفاء علي|أسنان|67
+        د. محمد يس|أطفال|67
+        د. هالة إبراهيم|باطنة|67
+        د. ياسر محمود|تنظيم أسرة|67
+        د. أشرف فوزي|جراحة|68
+        د. محمد يسري|عظام|68
+        د. نهى جلال|باطنة|68
+        د. محمود عادل|أطفال|68
+        د. داليا المرسي|نساء وتوليد|68
+        د. تامر المصلحي|عظام|69
+        د. محمد كمال|جراحة عامة|69
+        د. نهال عبد العزيز|باطنة|69
+        د. عادل نبيل|أطفال|69
+        د. سمر توفيق|نساء وتوليد|69
+        د. محمد جاد|باطنة وقلب|70
+        د. إيهاب عبد العظيم|جراحة وطوارئ|70
+        د. دعاء كمال|نساء وتوليد|70
+        د. سمر توفيق|أسنان|70
+        د. محمود يسري|أطفال|70
+        د. أحمد فوزي|إدارة طبية|71
+        د. محمد السعيد|عظام|71
+        د. مروة صبري|باطنة|71
+        د. خالد الشربيني|جراحة|71
+        د. لمياء فوزي|تخدير|71
+        د. عادل المرسي|ممارسة عامة|72
+        د. هبة الله محمود|باطنة|72
+        د. أحمد صالح|أطفال|72
+        د. محمد علي|طب أسرة|72
+        د. رانيا نبيل|طوارئ|72
+        د. هاني إبراهيم|باطنة|73
+        د. ميساء غانم|نساء وتوليد|73
+        د. صبري الطنطاوي|أطفال|73
+        د. محمد مرزوق|أسنان|73
+        د. ريهام البدوي|ممارسة عامة|73
+        د. وليد سمير|جراحة تجميل|74
+        د. مجدي كمال|جراحة|74
+        د. نهى السعيد|تخدير|74
+        د. تامر المصلحي|عظام|74
+        د. صفاء مرسي|باطنة|74
+        د. السيد الفرماوي|باطنة|75
+        د. حاتم نصار|كبد وجهاز هضمي|75
+        د. مرفت عبد الرؤوف|أطفال|75
+        د. محمود الشريف|جراحة|75
+        د. دعاء كمال|نساء وتوليد|75
+        د. عبد العزيز الفضالي|جراحة|75
+        د. محمد عوض|باطنة وقلب|75
+        د. إيمان خليل|أطفال|75
+        د. ياسمين كمال|نساء وتوليد|75
+        د. أحمد رشدي|طب أسرة|76
+        د. سارة يوسف|أطفال|76
+        د. محمود أبو طالب|باطنة|76
+        د. إيمان الصاوي|أسنان|76
+        د. محمد عبد العظيم|ممارسة عامة|76
+        د. تامر المصلحي|جراحة|77
+        د. عادل نبيل|أطفال|77
+        د. نهال عبد العزيز|باطنة|77
+        د. سمر توفيق|نساء وتوليد|77
+        د. محمد كمال|أسنان|77
+        د. أحمد فؤاد|باطنة|78
+        د. ريهام البدوي|أطفال|78
+        د. صبري الطنطاوي|أسنان|78
+        د. ميساء غانم|تنظيم أسرة|78
+        د. محمد مرزوق|ممارسة عامة|78
+        د. مجدي كمال|جراحة|79
+        د. نهى السعيد|نساء وتوليد|80
+        د. وليد سمير|عظام|81
+        د. صفاء مرسي|باطنة|82
+        د. تامر المصلحي|أطفال|83`.split('\n');
+        _dd.forEach((line,i)=>{const p=line.split('|');const hid=parseInt(p[2]);const hosp=hospitals.find(h=>h.id===hid);doctors.push({id:24+i+1,name:p[0],specialty:p[1],hospitalId:hid,hospitalName:hosp?hosp.name:'',rating:parseFloat((3.8+((24+i+1)*13%11)/10).toFixed(1)),reviews:30+((24+i+1)*17%171),experience:5+((24+i+1)*11%21),fee:'مجاني',available:true,icon:specIcon(p[1])});});
+        
+        const bloodTypes=[{type:"A+",canReceive:"A+, A-, O+, O-",canDonate:"A+, AB+"},{type:"A-",canReceive:"A-, O-",canDonate:"A+, A-, AB+, AB-"},{type:"B+",canReceive:"B+, B-, O+, O-",canDonate:"B+, AB+"},{type:"B-",canReceive:"B-, O-",canDonate:"B+, B-, AB+, AB-"},{type:"AB+",canReceive:"جميع الفصائل",canDonate:"AB+"},{type:"AB-",canReceive:"A-, B-, AB-, O-",canDonate:"AB+, AB-"},{type:"O+",canReceive:"O+, O-",canDonate:"O+, A+, B+, AB+"},{type:"O-",canReceive:"O-",canDonate:"جميع الفصائل (معطي عام)"}];
+        const teamMembers=["محمد ناصر محمد محمود السيد","محمد مصطفى الحسنين إبراهيم الصعيدي","محمد محمد الحسيني على قندول","محمد مصطفى كامل إبراهيم","محمد محمد الشافعي عاشق يوسف","محمد مصطفى محمد عوض الله","محمد محمد عبد الفتاح محمد ماضي","محمد محمود إبراهيم محمود السيد","محمد مطاوع عبد الحكيم صالح","محمد ممدوح جوده محمد","محمد محمود أحمد عبد الرحمن عياد","محمد محمود حسين محمود السيد محمد","محمد منير الشربيني عبد العزيز الشربيني","محمد محمود حلمي محمد الشاذلي","محمد محمود محمد الصاوي","محمد هاشم أحمد","محمد هشام نصر عوض احمد","محمد محمود مصطفي مصطفي","محمد محمود معاذ محمد محمود","محمد وائل محمد إبراهيم حسانين","محمد وائل نبيه جوده المنجى","محمد وليد الحسيني الغندور","محمد وليد أحمد قطب داود","محمد وليد محمد عبد الغفار","محمد وليد محمد عطيه"];
+        const avatarColors=["linear-gradient(135deg,#0fcc8a,#0aa06e)","linear-gradient(135deg,#d4a853,#b8913e)","linear-gradient(135deg,#3498db,#2980b9)","linear-gradient(135deg,#e74c5e,#c0392b)","linear-gradient(135deg,#9b59b6,#8e44ad)","linear-gradient(135deg,#2ecc71,#27ae60)","linear-gradient(135deg,#e67e22,#d35400)"];
+        
+        const STEP_LABELS=['المحافظة','المركز','المستشفى','الطبيب','الموعد','التأكيد'];
+        
+        let currentPage='home';
+        let bookingState={step:0,govId:null,centerId:null,hospitalId:null,doctorId:null,date:new Date().toISOString().split('T')[0],time:'',patientName:'',patientPhone:'',patientNationalId:'',notes:''};
+        
+        function navigateTo(page){currentPage=page;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const t=document.getElementById('page-'+page);if(t)t.classList.add('active');document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));document.querySelectorAll(`.nav-link[data-page="${page}"]`).forEach(l=>l.classList.add('active'));window.scrollTo({top:0,behavior:'smooth'});if(page==='hospitals')renderHospitals();if(page==='doctors')renderDoctors();if(page==='booking'){bookingState={step:0,govId:null,centerId:null,hospitalId:null,doctorId:null,date:new Date().toISOString().split('T')[0],time:'',patientName:'',patientPhone:'',patientNationalId:'',notes:''};renderBookingStep();}if(page==='appointments')renderAppointments();if(page==='emergency')renderBloodTypes();if(page==='about')renderTeam();if(page==='records')renderRecords();}
+        function toggleMobileMenu(){document.getElementById('mobileMenu').classList.toggle('open');}
+        function showToast(msg,type='info'){const c=document.getElementById('toastContainer');const icons={success:'fa-check-circle',error:'fa-exclamation-circle',warning:'fa-exclamation-triangle',info:'fa-info-circle'};const t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=`<i class="fas ${icons[type]} toast-icon"></i><span class="toast-msg">${msg}</span><button class="toast-close" onclick="this.parentElement.classList.add('removing');setTimeout(()=>this.parentElement.remove(),300)"><i class="fas fa-times"></i></button>`;c.appendChild(t);setTimeout(()=>{t.classList.add('removing');setTimeout(()=>t.remove(),300);},4000);}
+        function showModal(title,msg,onConfirm,confirmText='تأكيد',confirmClass='confirm-green'){const o=document.getElementById('modalOverlay'),c=document.getElementById('modalContent');c.innerHTML=`<h3>${title}</h3><p>${msg}</p><div class="modal-actions"><button class="modal-btn cancel" onclick="closeModal()">إلغاء</button><button class="modal-btn ${confirmClass}" id="modalConfirmBtn">${confirmText}</button></div>`;o.classList.add('open');document.getElementById('modalConfirmBtn').onclick=()=>{closeModal();if(onConfirm)onConfirm();};}
+        function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+        function animateCounter(el,target){let c=0;const s=Math.ceil(target/60);const t=setInterval(()=>{c+=s;if(c>=target){c=target;clearInterval(t);}el.textContent=c+'+';},30);}
+        function handleHeroSearch(q){if(q.length>1){const hm=hospitals.filter(h=>h.name.includes(q)||h.city.includes(q));const dm=doctors.filter(d=>d.name.includes(q)||d.specialty.includes(q));if(hm.length>0)navigateTo('hospitals');else if(dm.length>0)navigateTo('doctors');}}
+        function handleHeroSearchClick(){const q=document.getElementById('heroSearch').value.trim();if(!q){showToast('اكتب اسم المستشفى أو الطبيب','warning');return;}handleHeroSearch(q);}
+        
+        function renderHospitals(filter='الكل'){const f=document.getElementById('hospitalFilters');const cities=['الكل',...new Set(hospitals.map(h=>h.city))];f.innerHTML=cities.map(c=>`<button class="filter-btn ${c===filter?'active':''}" onclick="renderHospitals('${c}')">${c}</button>`).join('');const filtered=filter==='الكل'?hospitals:hospitals.filter(h=>h.city===filter);document.getElementById('hospitalsGrid').innerHTML=filtered.map(h=>`<div class="hospital-card"><div class="hospital-img"><img src="${h.img}" alt="${h.name}" loading="lazy"><span class="hospital-type-badge">${h.type}</span><span class="hospital-gov-badge"><i class="fas fa-landmark" style="margin-left:4px;"></i> حكومي</span></div><div class="hospital-body"><h3>${h.name}</h3><div class="hospital-meta"><span><i class="fas fa-map-marker-alt"></i> ${h.city}</span><span><i class="fas fa-user-md"></i> ${h.doctors} طبيب</span><span><i class="fas fa-bed"></i> ${h.beds} سرير</span></div><div class="hospital-rating"><span class="stars">${'<i class="fas fa-star"></i>'.repeat(Math.floor(h.rating))}${h.rating%1?'<i class="fas fa-star-half-alt"></i>':''}</span><span class="rating-num">${h.rating}</span><span class="rating-count">(${h.reviews.toLocaleString()} تقييم)</span></div><div class="hospital-tags">${h.specialties.slice(0,4).map(s=>`<span class="hospital-tag">${s}</span>`).join('')}${h.specialties.length>4?`<span class="hospital-tag">+${h.specialties.length-4}</span>`:''}</div><div class="hospital-actions"><button class="btn-outline" onclick="showHospitalDetails(${h.id})"><i class="fas fa-info-circle" style="margin-left:4px;"></i> التفاصيل</button><button class="btn-primary" onclick="startBookingFromHospital(${h.id})"><i class="fas fa-calendar-check" style="margin-left:4px;"></i> احجز</button></div></div></div>`).join('');}
+        function showHospitalDetails(id){const h=hospitals.find(x=>x.id===id);if(!h)return;const hd=doctors.filter(d=>d.hospitalId===id);showModal(h.name,`<div style="text-align:right;line-height:2;"><p><strong>العنوان:</strong> ${h.address}</p><p><strong>الهاتف:</strong> ${h.phone||'غير متوفر'}</p><p><strong>النوع:</strong> ${h.type}</p><p><strong>الأطباء:</strong> ${h.doctors} | <strong>الأسرة:</strong> ${h.beds}</p><p><strong>التقييم:</strong> ${h.rating}/5</p><p><strong>التخصصات:</strong> ${h.specialties.join(' - ')}</p><p><strong>أطباء متاحين:</strong> ${hd.length}</p></div>`,null,'إغلاق','confirm-green');}
+        function startBookingFromHospital(hid){const h=hospitals.find(x=>x.id===hid);const c=centers.find(x=>x.id===h?.centerId);bookingState.govId=c?c.gov:null;bookingState.centerId=h?h.centerId:null;bookingState.hospitalId=hid;bookingState.doctorId=null;bookingState.step=3;navigateTo('booking');renderBookingStep();}
+        
+        function renderDoctors(filter='الكل'){const f=document.getElementById('doctorFilters');const specs=['الكل',...new Set(doctors.map(d=>d.specialty))];f.innerHTML=specs.map(s=>`<button class="filter-btn ${s===filter?'active':''}" onclick="renderDoctors('${s}')">${s}</button>`).join('');const filtered=filter==='الكل'?doctors:doctors.filter(d=>d.specialty===filter);document.getElementById('doctorsGrid').innerHTML=filtered.map(d=>`<div class="doctor-card"><div class="doctor-avatar"><i class="fas ${d.icon}"></i></div><div class="doctor-info"><h3>${d.name}</h3><div class="doctor-specialty">${d.specialty}</div><div class="doctor-hospital"><i class="fas fa-hospital" style="margin-left:4px;"></i> ${d.hospitalName}</div><div class="doctor-details"><span class="doctor-detail"><i class="fas fa-star"></i> ${d.rating}</span><span class="doctor-detail"><i class="fas fa-clock"></i> ${d.experience} سنة</span><span class="doctor-detail"><i class="fas fa-comment"></i> ${d.reviews}</span><span class="doctor-detail" style="${d.available?'':'color:var(--danger);'}"><i class="fas ${d.available?'fa-check-circle':'fa-times-circle'}"></i> ${d.available?'متاح':'غير متاح'}</span></div><div class="doctor-bottom"><span class="doctor-fee">${d.fee} <small>الكشف</small></span>${d.available?`<button class="btn-book-sm" onclick="startBookingFromDoctor(${d.id})">احجز موعد</button>`:`<button class="btn-book-sm" style="opacity:0.4;cursor:not-allowed;" disabled>غير متاح</button>`}</div></div></div>`).join('');}
+        function startBookingFromDoctor(did){const doc=doctors.find(d=>d.id===did);const h=hospitals.find(x=>x.id===doc.hospitalId);const c=centers.find(x=>x.id===h?.centerId);bookingState.doctorId=did;bookingState.hospitalId=doc.hospitalId;bookingState.centerId=h?.centerId||null;bookingState.govId=c?c.gov:null;bookingState.step=4;navigateTo('booking');renderBookingStep();}
+        
+        /* ============ بناء خطوات الحجز ديناميكياً ============ */
+        function buildSteps(){
+            document.getElementById('bookingSteps').innerHTML=STEP_LABELS.map((lbl,i)=>`<div class="step" data-step="${i+1}"><div class="step-circle">${i+1}</div><div class="step-label">${lbl}</div></div>`).join('');
+        }
+        function updateSteps(){
+            document.querySelectorAll('#bookingSteps .step').forEach(s=>{
+                const n=parseInt(s.dataset.step);s.classList.remove('active','done');
+                if(n<=bookingState.step+1)s.classList.add('done');
+                if(n===bookingState.step+1)s.classList.add('active');
+            });
+        }
+        
+        
+        /* ============ خطوات الحجز الست ============ */
+        function renderBookingStep(){
+            buildSteps();updateSteps();
+            const el=document.getElementById('bookingContent');
+        
+            if(bookingState.step===0){
+                el.innerHTML=`<div class="booking-form-card"><h3><i class="fas fa-map" style="color:var(--accent);"></i> اختر المحافظة</h3><p style="color:var(--fg-muted);margin-bottom:20px;">اختر المحافظة لعرض المراكز والمستشفيات التابعة لها</p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;">
+                    ${governorates.map(g=>`<div class="gov-card ${bookingState.govId===g.id?'selected':''}" onclick="selectGov('${g.id}')"><div class="gov-icon"><i class="fas ${g.icon}"></i></div><div class="gov-info"><h4>${g.name}</h4><small>${g.count} مركز / مدينة</small></div></div>`).join('')}
+                </div></div>
+                <div class="booking-nav"><div></div><button class="btn-next" id="step0Next" ${!bookingState.govId?'disabled':''} onclick="goToStep(1)">التالي <i class="fas fa-arrow-left" style="margin-right:6px;"></i></button></div>`;
+            }
+            
+            else if(bookingState.step===1){
+                const list=centers.filter(c=>c.gov===bookingState.govId);
+                const gn=governorates.find(g=>g.id===bookingState.govId)?.name||'';
+                el.innerHTML=`<div class="booking-form-card"><h3><i class="fas fa-map-marked-alt" style="color:var(--accent);"></i> اختر المركز — ${gn}</h3>
+                ${list.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
+                    ${list.map(c=>`<div class="center-card ${bookingState.centerId===c.id?'selected':''}" onclick="selectCenter('${c.id}')"><div class="ctr-icon"><i class="fas fa-map-pin"></i></div><div class="ctr-info"><h4>${c.name}</h4><small>${c.city}</small></div></div>`).join('')}
+                </div>`:'<p style="text-align:center;color:var(--fg-dim);padding:40px 0;">لا توجد مراكز</p>'}
+                </div><div class="booking-nav"><button class="btn-back" onclick="goToStep(0)"><i class="fas fa-arrow-right" style="margin-left:6px;"></i> السابق</button><button class="btn-next" id="step1Next" ${!bookingState.centerId?'disabled':''} onclick="goToStep(2)">التالي <i class="fas fa-arrow-left" style="margin-right:6px;"></i></button></div>`;
+            }
+            else if(bookingState.step===2){
+                const list=hospitals.filter(h=>h.centerId===bookingState.centerId);const cn=centers.find(x=>x.id===bookingState.centerId)?.name||'';
+                el.innerHTML=`<div class="booking-form-card"><h3><i class="fas fa-hospital" style="color:var(--accent);"></i> اختر المستشفى — ${cn}</h3>
+                ${list.length?`<div class="form-grid"><div class="form-group full"><select class="form-select" id="bookingHospital" onchange="onHospitalSelect()"><option value="">-- اختر المستشفى --</option>${list.map(h=>`<option value="${h.id}" ${bookingState.hospitalId===h.id?'selected':''}>${h.name} (${h.type})</option>`).join('')}</select></div></div>
+                <div style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;">${list.map(h=>`<div style="padding:14px;background:var(--bg2);border:2px solid ${bookingState.hospitalId===h.id?'var(--accent)':'var(--border)'};border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;${bookingState.hospitalId===h.id?'box-shadow:0 0 0 3px var(--accent-glow);':''}" onclick="selectHospitalCard(${h.id})"><div style="font-weight:700;margin-bottom:4px;">${h.name}</div><div style="font-size:0.8rem;color:var(--fg-dim);">${h.type} · ${h.specialties.slice(0,3).join(' - ')}${h.specialties.length>3?' +'+(h.specialties.length-3):''}</div></div>`).join('')}</div>`:'<p style="text-align:center;color:var(--fg-dim);padding:40px 0;">لا توجد مستشفيات</p>'}
+                </div><div class="booking-nav"><button class="btn-back" onclick="goToStep(1)"><i class="fas fa-arrow-right" style="margin-left:6px;"></i> السابق</button><button class="btn-next" id="step2Next" ${!bookingState.hospitalId?'disabled':''} onclick="goToStep(3)">التالي <i class="fas fa-arrow-left" style="margin-right:6px;"></i></button></div>`;
+            }
+            else if(bookingState.step===3){
+                const list=doctors.filter(d=>d.hospitalId===bookingState.hospitalId&&d.available);const hn=hospitals.find(x=>x.id===bookingState.hospitalId)?.name||'';
+                el.innerHTML=`<div class="booking-form-card"><h3><i class="fas fa-user-md" style="color:var(--accent);"></i> اختر الطبيب — ${hn}</h3>${list.length?`<div class="doctors-grid" style="margin-top:12px;">${list.map(d=>`<div class="doctor-card" style="cursor:pointer;${bookingState.doctorId===d.id?'border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow);':''}" onclick="selectDoctorForBooking(${d.id})"><div class="doctor-avatar"><i class="fas ${d.icon}"></i></div><div class="doctor-info"><h3>${d.name}</h3><div class="doctor-specialty">${d.specialty}</div><div class="doctor-details"><span class="doctor-detail"><i class="fas fa-star"></i> ${d.rating}</span><span class="doctor-detail"><i class="fas fa-clock"></i> ${d.experience} سنة</span></div></div></div>`).join('')}</div>`:'<p style="text-align:center;color:var(--fg-dim);padding:40px 0;">لا يوجد أطباء متاحين</p>'}</div><div class="booking-nav"><button class="btn-back" onclick="goToStep(2)"><i class="fas fa-arrow-right" style="margin-left:6px;"></i> السابق</button><button class="btn-next" id="step3Next" ${!bookingState.doctorId?'disabled':''} onclick="goToStep(4)">التالي <i class="fas fa-arrow-left" style="margin-right:6px;"></i></button></div>`;
+            }
+            else if(bookingState.step===4){
+                const doc=doctors.find(d=>d.id===bookingState.doctorId);const h=hospitals.find(x=>x.id===bookingState.hospitalId);const today=new Date().toISOString().split('T')[0];
+                const ts=['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','14:00','14:30','15:00','15:30','16:00'];const dis=['09:30','11:00','14:30'];
+                el.innerHTML=`<div class="booking-form-card"><h3><i class="fas fa-info-circle" style="color:var(--accent);"></i> ملخص الاختيار</h3><div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:24px;"><div style="flex:1;min-width:200px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);"><div style="font-size:0.8rem;color:var(--fg-dim);margin-bottom:4px;">المستشفى</div><div style="font-weight:700;">${h?h.name:''}</div></div><div style="flex:1;min-width:200px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);"><div style="font-size:0.8rem;color:var(--fg-dim);margin-bottom:4px;">الطبيب</div><div style="font-weight:700;">${doc?doc.name:''}</div><div style="font-size:0.82rem;color:var(--accent);">${doc?doc.specialty:''}</div></div></div></div>
+                <div class="booking-form-card"><h3><i class="fas fa-calendar-alt" style="color:var(--accent);"></i> اختر الموعد</h3><div class="form-grid"><div class="form-group"><label class="form-label">تاريخ الموعد</label><input type="date" class="form-input" id="bookingDate" min="${today}" value="${bookingState.date}"></div><div class="form-group"><label class="form-label">الوقت المفضل</label><div class="time-slots" id="timeSlots">${ts.map(t=>`<button type="button" class="time-slot ${dis.includes(t)?'disabled':''} ${bookingState.time===t?'selected':''}" onclick="${dis.includes(t)?'':`selectTimeSlot('${t}')`}">${t}</button>`).join('')}</div></div></div></div>
+                <div class="booking-form-card"><h3><i class="fas fa-user" style="color:var(--accent);"></i> بيانات المريض</h3><div class="form-grid"><div class="form-group"><label class="form-label">الاسم بالكامل</label><input type="text" class="form-input" id="patientName" placeholder="مثال: محمد أحمد علي" value="${bookingState.patientName}"></div><div class="form-group"><label class="form-label">رقم الهاتف</label><input type="tel" class="form-input" id="patientPhone" placeholder="01xxxxxxxxx" value="${bookingState.patientPhone}"></div><div class="form-group"><label class="form-label">الرقم القومي</label><input type="text" class="form-input" id="patientNationalId" placeholder="14 رقم" maxlength="14" value="${bookingState.patientNationalId}"></div><div class="form-group"><label class="form-label">فصيلة الدم (اختياري)</label><select class="form-select" id="patientBlood"><option value="">-- اختر --</option>${bloodTypes.map(b=>`<option value="${b.type}">${b.type}</option>`).join('')}</select></div><div class="form-group full"><label class="form-label">ملاحظات (اختياري)</label><textarea class="form-input" id="patientNotes" rows="3" placeholder="ملاحظات إضافية...">${bookingState.notes}</textarea></div></div></div>
+                <div class="booking-nav"><button class="btn-back" onclick="goToStep(3)"><i class="fas fa-arrow-right" style="margin-left:6px;"></i> السابق</button><button class="btn-next" onclick="validateAndConfirm()">تأكيد الحجز <i class="fas fa-check" style="margin-right:6px;"></i></button></div>`;
+            }
+            else if(bookingState.step===5){
+                const doc=doctors.find(d=>d.id===bookingState.doctorId);const h=hospitals.find(x=>x.id===bookingState.hospitalId);const dt=new Date(bookingState.date);
+                const dn=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][dt.getDay()];const mn=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'][dt.getMonth()];
+                el.innerHTML=`<div class="booking-form-card"><div class="confirm-card"><div class="confirm-icon"><i class="fas fa-check"></i></div><h3>تم حجز الموعد بنجاح</h3><p style="color:var(--fg-muted);">تم حفظ موعدك</p><div class="confirm-details"><div class="confirm-detail-row"><span class="label">المستشفى</span><span class="value">${h?h.name:''}</span></div><div class="confirm-detail-row"><span class="label">الطبيب</span><span class="value">${doc?doc.name:''}</span></div><div class="confirm-detail-row"><span class="label">التخصص</span><span class="value">${doc?doc.specialty:''}</span></div><div class="confirm-detail-row"><span class="label">التاريخ</span><span class="value">${dn} ${dt.getDate()} ${mn} ${dt.getFullYear()}</span></div><div class="confirm-detail-row"><span class="label">الوقت</span><span class="value">${bookingState.time}</span></div><div class="confirm-detail-row"><span class="label">اسم المريض</span><span class="value">${bookingState.patientName}</span></div><div class="confirm-detail-row"><span class="label">الهاتف</span><span class="value">${bookingState.patientPhone}</span></div><div class="confirm-detail-row"><span class="label">الحالة</span><span class="value" style="color:var(--success);">مؤكد</span></div></div><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px;"><button class="btn-next" onclick="navigateTo('appointments')"><i class="fas fa-clipboard-list" style="margin-left:6px;"></i> عرض مواعيدي</button><button class="btn-back" onclick="navigateTo('booking')"><i class="fas fa-plus" style="margin-left:6px;"></i> حجز جديد</button></div></div></div>`;
+            }
+        }
+        
+        function selectGov(id){bookingState.govId=id;bookingState.centerId=null;bookingState.hospitalId=null;bookingState.doctorId=null;document.getElementById('step0Next').disabled=false;renderBookingStep();}
+        function selectCenter(id){bookingState.centerId=id;bookingState.hospitalId=null;bookingState.doctorId=null;document.getElementById('step1Next').disabled=false;renderBookingStep();}
+        function selectHospitalCard(id){bookingState.hospitalId=id;bookingState.doctorId=null;document.getElementById('step2Next').disabled=false;renderBookingStep();}
+        function onHospitalSelect(){const v=document.getElementById('bookingHospital').value;bookingState.hospitalId=v?parseInt(v):null;bookingState.doctorId=null;document.getElementById('step2Next').disabled=!v;}
+        function selectDoctorForBooking(id){bookingState.doctorId=id;document.getElementById('step3Next').disabled=false;renderBookingStep();}
+        function selectTimeSlot(t){bookingState.time=t;document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected'));event.target.classList.add('selected');}
+        function goToStep(s){bookingState.step=s;renderBookingStep();window.scrollTo({top:200,behavior:'smooth'});}
+        function validateAndConfirm(){bookingState.date=document.getElementById('bookingDate')?.value||'';bookingState.patientName=document.getElementById('patientName')?.value||'';bookingState.patientPhone=document.getElementById('patientPhone')?.value||'';bookingState.patientNationalId=document.getElementById('patientNationalId')?.value||'';bookingState.notes=document.getElementById('patientNotes')?.value||'';if(!bookingState.date){showToast('اختر تاريخ الموعد','warning');return;}if(!bookingState.time){showToast('اختر وقت الموعد','warning');return;}if(!bookingState.patientName.trim()){showToast('أدخل اسمك بالكامل','warning');return;}if(!bookingState.patientPhone.trim()||bookingState.patientPhone.length<11){showToast('أدخل رقم هاتف صحيح','warning');return;}const appts=JSON.parse(localStorage.getItem('smartDoctorAppointments')||'[]');appts.push({id:Date.now(),govId:bookingState.govId,centerId:bookingState.centerId,hospitalId:bookingState.hospitalId,doctorId:bookingState.doctorId,date:bookingState.date,time:bookingState.time,patientName:bookingState.patientName,patientPhone:bookingState.patientPhone,patientNationalId:bookingState.patientNationalId,notes:bookingState.notes,status:'confirmed',createdAt:new Date().toISOString()});localStorage.setItem('smartDoctorAppointments',JSON.stringify(appts));updateAppointmentsBadge();bookingState.step=5;renderBookingStep();showToast('تم حجز الموعد بنجاح','success');}
+        
+        function renderAppointments(){const el=document.getElementById('appointmentsList');const appts=JSON.parse(localStorage.getItem('smartDoctorAppointments')||'[]');if(appts.length===0){el.innerHTML='<div class="empty-state"><div class="empty-icon"><i class="fas fa-calendar-times"></i></div><h3>لا توجد مواعيد محجوزة</h3><p>لم تقم بحجز أي موعد بعد.</p><button class="btn-next" onclick="navigateTo(\'booking\')"><i class="fas fa-calendar-plus" style="margin-left:6px;"></i> احجز موعد الآن</button></div>';return;}const mn=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];el.innerHTML=appts.reverse().map(a=>{const doc=doctors.find(d=>d.id===a.doctorId);const h=hospitals.find(x=>x.id===a.hospitalId);const dt=new Date(a.date);let st='ملغي';let sc='pending';if(a.status==='confirmed'){st='مؤكد';sc='confirmed';}else if(a.status==='examined'){st='تم الكشف';sc='confirmed';}return`<div class="appointment-card"><div class="appt-date-box"><span class="day">${dt.getDate()}</span><span class="month">${mn[dt.getMonth()]}</span></div><div class="appt-info"><h4>${doc?doc.name:'طبيب'}</h4><p><i class="fas fa-stethoscope"></i> ${doc?doc.specialty:''}</p><p><i class="fas fa-hospital"></i> ${h?h.name:''}</p><p><i class="fas fa-clock"></i> ${a.time} - ${a.patientName}</p></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;"><span class="appt-status ${sc}">${st}</span>${a.status==='confirmed'?`<button class="appt-cancel" onclick="cancelAppointment(${a.id})"><i class="fas fa-times" style="margin-left:4px;"></i> إلغاء</button>`:''}</div></div>`;}).join('');}
+        function cancelAppointment(id){showModal('إلغاء الموعد','هل أنت متأكد؟',()=>{let a=JSON.parse(localStorage.getItem('smartDoctorAppointments')||'[]');a=a.map(x=>x.id===id?{...x,status:'cancelled'}:x);localStorage.setItem('smartDoctorAppointments',JSON.stringify(a));updateAppointmentsBadge();renderAppointments();showToast('تم إلغاء الموعد','info');},'تأكيد الإلغاء','confirm');}
+        function updateAppointmentsBadge(){const a=JSON.parse(localStorage.getItem('smartDoctorAppointments')||'[]');const c=a.filter(x=>x.status==='confirmed').length;const b=document.getElementById('apptBadge');if(c>0){b.style.display='flex';b.textContent=c;}else{b.style.display='none';}}
+        
+        function renderBloodTypes(){document.getElementById('bloodTypesGrid').innerHTML=bloodTypes.map(b=>`<button class="blood-type-btn" onclick="selectBloodType('${b.type}')">${b.type}<small>${b.type==='O-'?'معطي عام':b.type==='AB+'?'متقبل عام':''}</small></button>`).join('');}
+        function selectBloodType(type){const info=bloodTypes.find(b=>b.type===type);document.querySelectorAll('.blood-type-btn').forEach(b=>b.classList.remove('selected'));event.target.closest('.blood-type-btn').classList.add('selected');const el=document.getElementById('bloodTypeInfo');el.style.display='block';el.innerHTML=`<div class="booking-form-card" style="margin-top:16px;"><h3><i class="fas fa-tint" style="color:var(--danger);"></i> فصيلة الدم: ${type}</h3><div class="form-grid"><div class="form-group"><label class="form-label">يمكنه التبرع لـ</label><div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);font-weight:700;color:var(--success);">${info.canDonate}</div></div><div class="form-group"><label class="form-label">يمكنه الاستقبال من</label><div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);font-weight:700;color:var(--info);">${info.canReceive}</div></div></div></div>`;showToast(`تم تحديد فصيلة الدم: ${type}`,'success');}
+        
+        function renderTeam(){document.getElementById('teamGrid').innerHTML=teamMembers.map((name,i)=>{const initials=name.split(' ').filter(w=>w.length>2&&w!=='محمد'&&w!=='عبد'&&w!=='ال').slice(0,2).map(w=>w[0]).join('');return`<div class="team-card"><div class="team-avatar" style="background:${avatarColors[i%avatarColors.length]};">${initials||name[0]}</div><h4>${name}</h4></div>`;}).join('');}
+        
+        /* ============ السجل الطبي ============ */
+        let currentRecordApptId = null;
+        
+        function getRecords() {
+            return JSON.parse(localStorage.getItem('smartDoctorRecords') || '[]');
+        }
+        
+        function renderRecords(searchQuery = '') {
+            const grid = document.getElementById('recordsGrid');
+            let records = getRecords();
+            
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                records = records.filter(r => r.disease.toLowerCase().includes(q) || r.hospitalName.toLowerCase().includes(q) || r.doctorName.toLowerCase().includes(q));
+            }
+            
+            if (records.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--fg-dim);">
+                    <div style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;"><i class="fas fa-notes-medical"></i></div>
+                    <h3 style="font-size: 1.2rem; color: var(--fg-muted); margin-bottom: 8px;">سجلك الطبي فارغ</h3>
+                    <p>سيتم ظهور التقارير والروشتات الطبية هنا بمجرد إتمام كشوفاتك في المستشفى.</p>
+                </div>`;
+                return;
+            }
+            
+            grid.innerHTML = records.map(r => {
+                const statusLabels = { 'stable': 'مستقرة', 'observation': 'تحت الملاحظة', 'critical': 'حرجة' };
+                const dt = new Date(r.date);
+                const dateStr = dt.toLocaleDateString('ar-EG');
+                
+                return `
+                <div class="case-card">
+                    <div class="case-status-bar ${r.status}"></div>
+                    <div class="case-header">
+                        <div class="case-info">
+                            <h3>${r.hospitalName}</h3>
+                            <p><i class="fas fa-user-md"></i> الطبيب: ${r.doctorName}</p>
+                            <p><i class="fas fa-calendar-alt"></i> تاريخ الكشف: ${dateStr}</p>
+                        </div>
+                        <span class="case-status-badge ${r.status}">${statusLabels[r.status]}</span>
+                    </div>
+                    
+                    <div class="case-details">
+                        <div class="case-detail-item">
+                            <div class="case-detail-label">التشخيص</div>
+                            <div class="case-detail-value">${r.disease}</div>
+                        </div>
+                        <div class="case-detail-item">
+                            <div class="case-detail-label">الأعراض التي تم الشكوى منها</div>
+                            <div class="case-detail-value">${r.symptoms}</div>
+                        </div>
+                        <div class="case-detail-item">
+                            <div class="case-detail-label">خطة العلاج والأدوية (الروشتة)</div>
+                            <div class="case-detail-value" style="white-space: pre-line;">${r.treatment}</div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+        
+        function handleRecordsSearch(q) {
+            renderRecords(q.trim());
+        }
+        
+        function openAddRecordModal(apptId) {
+            currentRecordApptId = apptId;
+            const appts = JSON.parse(localStorage.getItem('smartDoctorAppointments') || '[]');
+            const appt = appts.find(a => a.id === apptId);
+            if (!appt) return;
+            const doc = doctors.find(d => d.id === appt.doctorId);
+            const h = hospitals.find(x => x.id === appt.hospitalId);
+            
+            const title = 'إرفاق تقرير طبي (شاشة الطبيب)';
+            
+            const modalContent = `
+                <div style="background:var(--accent-glow); color:var(--accent); padding:10px; border-radius:var(--radius-sm); margin-bottom:16px; font-size:0.85rem; border:1px solid rgba(15,204,138,0.2);">
+                    <strong>المريض:</strong> ${appt.patientName} <br>
+                    <strong>الطبيب:</strong> ${doc ? doc.name : ''} - ${h ? h.name : ''}
+                </div>
+                <div class="form-grid" style="text-align: right; margin-bottom: 24px;">
+                    <div class="form-group full">
+                        <label class="form-label">التشخيص الدقيق لحالة المريض</label>
+                        <input type="text" id="recordDisease" class="form-input" placeholder="مثال: التهاب حاد بالشعب الهوائية">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">حالة المريض الحالية</label>
+                        <select id="recordStatus" class="form-select">
+                            <option value="stable">مستقرة (تصرف أدوية للمنزل)</option>
+                            <option value="observation">تحت الملاحظة (يحتاج متابعة)</option>
+                            <option value="critical">حرجة (يتم تحويله للطوارئ/حجز)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">الأعراض التي تم ملاحظتها</label>
+                        <textarea id="recordSymptoms" class="form-input" rows="2" placeholder="وصف للأعراض..."></textarea>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">الروشتة (الأدوية وخطة العلاج)</label>
+                        <textarea id="recordTreatment" class="form-input" rows="3" placeholder="اكتب أسماء الأدوية وجرعاتها..."></textarea>
+                    </div>
+                </div>
+            `;
+            
+            showModal(title, modalContent, saveRecordData, 'حفظ التقرير وإنهاء الكشف', 'confirm-green');
+            document.getElementById('modalContent').classList.add('case-modal');
+        }
+        
+        function saveRecordData() {
+            const disease = document.getElementById('recordDisease').value.trim();
+            const symptoms = document.getElementById('recordSymptoms').value.trim();
+            const treatment = document.getElementById('recordTreatment').value.trim();
+            const status = document.getElementById('recordStatus').value;
+            
+            if (!disease || !treatment) {
+                showToast('يرجى إدخال التشخيص والروشتة على الأقل', 'warning');
+                return;
+            }
+            
+            let appts = JSON.parse(localStorage.getItem('smartDoctorAppointments') || '[]');
+            const apptIndex = appts.findIndex(a => a.id === currentRecordApptId);
+            if(apptIndex === -1) return;
+            
+            const appt = appts[apptIndex];
+            appts[apptIndex].status = 'examined';
+            localStorage.setItem('smartDoctorAppointments', JSON.stringify(appts));
+            
+            const doc = doctors.find(d => d.id === appt.doctorId);
+            const h = hospitals.find(x => x.id === appt.hospitalId);
+            
+            let records = getRecords();
+            records.unshift({
+                id: Date.now(),
+                appointmentId: currentRecordApptId,
+                patientName: appt.patientName,
+                doctorName: doc ? doc.name : 'طبيب متخصص',
+                hospitalName: h ? h.name : 'مستشفى',
+                date: appt.date,
+                disease, symptoms, treatment, status
+            });
+            
+            localStorage.setItem('smartDoctorRecords', JSON.stringify(records));
+            
+            showToast('تم إرفاق التقرير وتم إنهاء الكشف بنجاح', 'success');
+            document.getElementById('modalContent').classList.remove('case-modal');
+            
+            if(currentPage === 'appointments') renderAppointments();
+            if(currentPage === 'records') renderRecords();
+            updateAppointmentsBadge();
+        }
+
+        window.addEventListener('scroll',()=>{const n=document.getElementById('navbar');if(window.scrollY>30)n.classList.add('scrolled');else n.classList.remove('scrolled');});
+        document.getElementById('modalOverlay').addEventListener('click',(e)=>{if(e.target===e.currentTarget)closeModal();});
+        document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{animateCounter(document.getElementById('statHospitals'),hospitals.length);animateCounter(document.getElementById('statDoctors'),doctors.length);animateCounter(document.getElementById('statSpecialties'),new Set(doctors.map(d=>d.specialty)).size);},500);updateAppointmentsBadge();});
+        </script>
+</body>
+</html>
